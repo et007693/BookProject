@@ -2,10 +2,7 @@ package com.hd.book.entity;
 
 import com.hd.book.constant.BoardType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +13,7 @@ import java.util.List;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"user", "book", "comments"})
 public class BoardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +30,7 @@ public class BoardEntity {
     private String content;
 
     private String image;
+
     private Integer likeCount = 0;
 
     @Column(name = "updated_at")
