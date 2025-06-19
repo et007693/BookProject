@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,17 +14,18 @@ import java.util.List;
 @Table(name="user")
 @Getter @Setter
 @NoArgsConstructor
-
+@ToString(exclude = {"histories"})
+// TODO: JWT 적용
 public class UserEntity {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
-    @Column(name = "user_name")
-    private String username;
+    @Column(name = "nickname", nullable = false, unique = true)
+    private String nickname;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -41,13 +43,4 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HistoryEntity> histories = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<BoardEntity> boards = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<BoardCommentEntity> boardComments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
-    private List<BookCommentEntity> bookComments = new ArrayList<>();
 }

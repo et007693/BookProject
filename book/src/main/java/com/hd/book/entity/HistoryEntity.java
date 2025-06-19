@@ -1,13 +1,8 @@
 package com.hd.book.entity;
 
-import com.hd.book.constant.HistoryStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,30 +11,17 @@ import java.util.List;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"user", "historyBooks"})
 public class HistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "history_id")
     private Long id;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private HistoryStatus status;
-
-    private String memo;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "history_book",
-            joinColumns = @JoinColumn(name = "history_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
-    private List<BookEntity> books = new ArrayList<>();
+    @OneToMany(mappedBy = "history", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoryBookEntity> historyBooks = new ArrayList<>();
 }

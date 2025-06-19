@@ -1,10 +1,8 @@
 package com.hd.book.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = {"user", "board"})
 public class BoardCommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +20,12 @@ public class BoardCommentEntity {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    @ColumnDefault("0")
     private Integer likeCount = 0;
+
+    @Column(nullable = false)
+    @ColumnDefault("0")
     private Integer hateCount = 0;
 
     @Column(name = "updated_at")
@@ -36,10 +40,10 @@ public class BoardCommentEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @ManyToOne
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity board;
 }
