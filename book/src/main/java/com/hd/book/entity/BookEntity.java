@@ -11,7 +11,7 @@ import java.util.List;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"boards", "comments", "historyBooks"})
+@ToString(exclude = {"boards", "comments", "histories"})
 public class BookEntity {
     @Id
     @Column(name = "isbn")
@@ -24,5 +24,5 @@ public class BookEntity {
     private List<BookCommentEntity> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoryBookEntity> historyBooks = new ArrayList<>();
+    private List<HistoryEntity> histories = new ArrayList<>();
 }
