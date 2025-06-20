@@ -2,24 +2,38 @@ package com.hd.book.jwt;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
 @Component
+@Slf4j
+@RequiredArgsConstructor
 public class JwtUtil {
     // 서명용 비밀키
-    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value(value = "${jwt.secret:ChangeThisSecretKeyForProd}")
+    private String secretKey;
 
-    // 토큰 유효시간: 1시간
-    private static final long EXPIRATION_TIME = 60 * 60 * 1000;
+    @Value(value = "${jwt.expiration-in-ms:3600000}")
+    private long validityInMilliseconds;
 
-    // JWT 생성
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+    }
+
+    // JWT 토큰 생성
     public String generateToken(String userEmail) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + EXPIRATION_TIME);
+        Date expiry = new Date(now.getTime() + validityInMilliseconds);
+
         return Jwts.builder()
                 .setSubject(userEmail)
                 .setIssuedAt(now)
@@ -29,7 +43,7 @@ public class JwtUtil {
     }
 
     // 토큰에서 사용자 이름 추출
-    public String getUserNameFromToken(String token) {
+    public String getUserName(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -47,6 +61,7 @@ public class JwtUtil {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
             return false;
         }
     }
