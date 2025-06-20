@@ -17,7 +17,7 @@ public class UserUtil {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    public UserEntity getCurrentUser() {
+    public UserEntity gettUserByEmail() {
         return userRepository.findByEmail(getUserEmail())
                 .orElseThrow(() -> new RuntimeException("유저 정보를 찾을 수 없습니다."));
     }
