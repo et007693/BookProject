@@ -1,8 +1,10 @@
 package com.hd.book.entity;
 
+import com.hd.book.constant.HistoryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,17 +13,28 @@ import java.util.List;
 @Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"user", "historyBooks"})
+@ToString(exclude = {"user", "book"})
 public class HistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "history_id")
     private Long id;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private HistoryStatus status;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+    private LocalDate endDate;
+
+    private String memo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @OneToMany(mappedBy = "history", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoryBookEntity> historyBooks = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "isbn")
+    private BookEntity book;
 }
