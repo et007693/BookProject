@@ -21,7 +21,7 @@ public class BoardEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private BoardType boardType;
+    private BoardType type;
 
     @Column(nullable = false, length = 128)
     private String title;
@@ -33,12 +33,15 @@ public class BoardEntity {
 
     private Integer likeCount = 0;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     @PrePersist
     public void onCreate() {
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
