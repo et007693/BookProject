@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     // 게시판 타입별 게시글 조회
-    Page<BoardEntity> findByBoardType(BoardType boardType, Pageable pageable);
+    Page<BoardEntity> findByType(BoardType boardType, Pageable pageable);
 
     // 제목 키워드 검색
     Page<BoardEntity> findByTitleContaining(String keyword, Pageable pageable);

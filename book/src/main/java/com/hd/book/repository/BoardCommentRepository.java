@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface BoardCommentRepository extends JpaRepository<BoardCommentEntity, Long> {
     // 책의 전체 댓글
-    List<BoardCommentEntity> findByBookIsbn(String isbn);
+    List<BoardCommentEntity> findByBoardBookIsbn(String isbn);
 }
