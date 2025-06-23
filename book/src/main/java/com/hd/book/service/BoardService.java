@@ -48,8 +48,8 @@ public class BoardService {
     public boolean updateBoard(Long boardId, BoardWriteDto boardWriteDto) {
         try {
             BookEntity book = bookService.getOrCreateBook(boardWriteDto.getIsbn());
-            BoardEntity board = boardRepository.findById(boardId).
-                    orElseThrow(() -> new RuntimeException("해당 게시물이 존재하지 않습니다.."));
+            BoardEntity board = boardRepository.findById(boardId)
+                            .orElseThrow(() -> new RuntimeException("해당 게시물이 존재하지 않습니다."));
             String currentUserEmail = userUtil.getUserEmail();
             if (!board.getUser().getEmail().equals(currentUserEmail)) throw new AccessDeniedException("게시글 수정 권한이 없습니다.");
 
@@ -62,10 +62,24 @@ public class BoardService {
             return true;
 
         } catch (Exception e) {
-            log.error("게시글 등록에 실패했습니다. {}", e.getMessage());
+            log.error("게시글 수정에 실패했습니다. {}", e.getMessage());
             return false;
         }
     }
+
+    // 게시글 삭제
+    public boolean deleteBoard(Long boardId) {
+        try {
+            BoardEntity board = boardRepository.findById(boardId)
+                    .orElseThrow(() -> new RuntimeException("해당 게시물이 존재하지 않습니다."));
+            boardRepository.delete(board);
+            return true;
+        } catch (Exception e) {
+            log.error("게시글 삭제에 실패했습니다. {}", e.getMessage());
+            return false;
+        }
+    }
+
     // TODO : 이미지 처리
     // DTO -> Entity 변환
      private BoardEntity convertDtoToEntity(BoardWriteDto boardWriteDto) {
