@@ -26,7 +26,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     // 회원 가입
-    @PostMapping("/signup")
+    @PostMapping("/register")
     public ResponseEntity<Void> register(
             @Validated @RequestBody SignupRequestDto dto
     ) {
