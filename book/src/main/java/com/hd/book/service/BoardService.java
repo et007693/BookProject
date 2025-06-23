@@ -1,6 +1,7 @@
 package com.hd.book.service;
 
 import com.hd.book.constant.BoardType;
+import com.hd.book.dto.board.BoardResDto;
 import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.BookEntity;
@@ -13,8 +14,13 @@ import com.hd.book.util.UserUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -80,8 +86,14 @@ public class BoardService {
         }
     }
 
+    // 게시글 목록
+    public Page<BoardResDto> boardList(Pageable pageable) {
+        Page<BoardEntity> boards = boardRepository.findAll(pageable);
+        return boards.map(this::convertEntityToDto);
+    }
+
     // TODO : 이미지 처리
-    // DTO -> Entity 변환
+    // DTO -> Entity
      private BoardEntity convertDtoToEntity(BoardWriteDto boardWriteDto) {
          UserEntity user = userUtil.getUser();
 
@@ -93,4 +105,18 @@ public class BoardService {
          board.setUser(user);
          return board;
      }
+
+     // Entity -> DTO
+    private BoardResDto convertEntityToDto(BoardEntity boardEntity) {
+        BoardResDto boardResDto = new BoardResDto();
+        boardResDto.setBoardId(boardEntity.getBoardId());
+        boardResDto.setType(boardEntity.getContent());
+        boardResDto.setTitle(boardEntity.getTitle());
+        boardResDto.setContent(boardEntity.getContent());
+        boardResDto.setLikeCount(boardEntity.getLikeCount());
+        boardResDto.setCreatedAt(boardEntity.getCreatedAt());
+        boardResDto.setIsbn(boardEntity.getBook().getIsbn());
+        return boardResDto;
+    }
+
 }
