@@ -31,7 +31,7 @@ public class BoardService {
     // 게시글 등록
     public boolean postBoard(BoardWriteDto boardWriteDto) {
         try {
-            // 책정보가 없을 경우를 대비해 조회 or 생성
+            // 책 정보가 없을 경우를 대비해 조회 or 생성
             BookEntity book = bookService.getOrCreateBook(boardWriteDto.getIsbn());
             BoardEntity board = convertDtoToEntity(boardWriteDto);
             // book 연결
@@ -47,6 +47,7 @@ public class BoardService {
     // 게시글 수정
     public boolean updateBoard(Long boardId, BoardWriteDto boardWriteDto) {
         try {
+            BookEntity book = bookService.getOrCreateBook(boardWriteDto.getIsbn());
             BoardEntity board = boardRepository.findById(boardId).
                     orElseThrow(() -> new RuntimeException("해당 게시물이 존재하지 않습니다.."));
             String currentUserEmail = userUtil.getUserEmail();
@@ -55,7 +56,8 @@ public class BoardService {
             board.setType(BoardType.valueOf(boardWriteDto.getType().toUpperCase()));
             board.setTitle(boardWriteDto.getTitle());
             board.setContent(boardWriteDto.getContent());
-//            board.setImage(boardWriteDto.getImage());
+            board.setBook(book);
+            // board.setImage(boardWriteDto.getImage());
             boardRepository.save(board);
             return true;
 
@@ -68,13 +70,12 @@ public class BoardService {
     // DTO -> Entity 변환
      private BoardEntity convertDtoToEntity(BoardWriteDto boardWriteDto) {
          UserEntity user = userUtil.getUser();
-         BookEntity book = bookUtil.getBookByIsbn(boardWriteDto.getIsbn());
 
          BoardEntity board = new BoardEntity();
          board.setType(BoardType.valueOf(boardWriteDto.getType().toUpperCase()));
          board.setTitle(boardWriteDto.getTitle());
          board.setContent(boardWriteDto.getContent());
-//         board.setImage(boardWriteDto.getImage());
+         // board.setImage(boardWriteDto.getImage());
          board.setUser(user);
          return board;
      }
