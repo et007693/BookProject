@@ -89,6 +89,7 @@ public class UserController {
         }
     }
 
+    // 사용자 프로필 수정
     @PatchMapping("/me")
     public ResponseEntity<ApiResponseDto<UserProfileDto>> updateMyProfile(
             @RequestHeader("Authorization") String bearerToken,
@@ -111,6 +112,7 @@ public class UserController {
         }
     }
 
+    // 사용자 삭제
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponseDto<Void>> deleteMyAccount(
             @RequestHeader("Authorization") String bearerToken
@@ -132,6 +134,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    // 다른 사용자 정보 조회
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponseDto<UserProfileDto>> getUserProfile(
             @PathVariable Long userId
