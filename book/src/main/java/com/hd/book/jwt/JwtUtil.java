@@ -52,6 +52,17 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    // 토큰에서 사용자 고유 ID 추출
+    public Long getUserId(String token) {
+        String sub = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        return Long.valueOf(sub);
+    }
+
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
