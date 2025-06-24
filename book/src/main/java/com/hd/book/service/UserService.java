@@ -25,6 +25,11 @@ public class UserService {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
 
+        // 닉네임 중복 체크
+        if (userRepository.existsByNickname(dto.getNickname())) {
+            throw new IllegalArgumentException("이미 사용 중인 닉네임 입니다.");
+        }
+
         // 엔티티 생성
         UserEntity user = new UserEntity();
         user.setEmail(dto.getEmail());
