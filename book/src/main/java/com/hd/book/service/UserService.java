@@ -93,4 +93,18 @@ public class UserService {
         userRepository.delete(user);
         log.info("사용자 삭제 완료: userId={}, email={}", user.getUserId(), user.getEmail());
     }
+
+    @Transactional(readOnly = true)
+    public UserProfileDto getOtherProfile(Long userId) {
+        // 사용자 조회
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("사용자를 찾을 수 없습니다. userId=" + userId));
+        return UserProfileDto.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .profileImage(user.getProfileImage())
+                .bio(user.getBio())
+                .build();
+    }
 }
