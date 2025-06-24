@@ -4,8 +4,6 @@ import com.hd.book.dto.auth.SignupRequestDto;
 import com.hd.book.dto.user.UserProfileDto;
 import com.hd.book.entity.UserEntity;
 import com.hd.book.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,10 +49,9 @@ public class UserService {
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .bio(user.getBio())
-                .phone(user.getPhone())
                 .profileImage(user.getProfileImage())
+                .readPublic(user.isReadPublic())
                 .createdAt(user.getCreatedAt().toString())
-                .updatedAt(user.getUpdatedAt().toString())
                 .build();
     }
 }
