@@ -20,14 +20,14 @@ public class UserProfileDto {
                           String email,
                           String bio,
                           String profileImage,
-                          Boolean readPublic,
+                          Boolean readHistoryVisible,
                           String createdAt) {
         this.userId = userId;
         this.nickname = nickname;
         this.email = email;
         this.bio = bio;
         this.profileImage = profileImage;
-        this.readHistoryVisible = readPublic;          // Boolean 이므로 null 허용
+        this.readHistoryVisible = readHistoryVisible;          // Boolean 이므로 null 허용
         this.createdAt = createdAt;
     }
 }
