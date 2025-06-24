@@ -99,6 +99,12 @@ public class BoardService {
         return convertEntityToDto(book);
     }
 
+    // 도서로 게시글 조회
+    public Page<BoardResDto> bookBoardList(String isbn, Pageable pageable) {
+        Page<BoardEntity> boards = boardRepository.findByBookIsbn(isbn, pageable);
+        return boards.map(this::convertEntityToDto);
+    }
+
     // TODO : 이미지 처리
     // DTO -> Entity
      private BoardEntity convertDtoToEntity(BoardWriteDto boardWriteDto) {
