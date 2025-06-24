@@ -1,5 +1,7 @@
 package com.hd.book.controller.user;
 
+import com.hd.book.dto.book.BookHistoryReqDto;
+import com.hd.book.dto.book.BookHistoryResDto;
 import com.hd.book.dto.response.ApiResponseDto;
 import com.hd.book.dto.user.UserProfileDto;
 import com.hd.book.jwt.JwtUtil;
@@ -151,5 +153,27 @@ public class UserController {
                     .status(HttpStatus.NOT_FOUND)
                     .body(error);
         }
+    }
+
+    // 읽은 책 등록
+    @PostMapping("/me/books")
+    public ResponseEntity<ApiResponseDto<BookHistoryResDto>> addReadBook(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestBody @Validated BookHistoryReqDto readHistoryDto
+    ) {
+        String token = bearerToken
+                .replaceFirst("(?i)^Bearer\\s+","")
+                .trim();
+
+        if (!jwtUtil.validateToken(token)) {
+            throw new BadCredentialsException("유효하지 않은 토큰입니다.");
+        }
+        String email = jwtUtil.getUserEmail(token);
+
+        BookHistoryResDto result = userService.registerReadHistory(email, readHistoryDto);
+
+        ApiResponseDto<BookHistoryResDto> response =
+                new ApiResponseDto<>(true, "읽은 책 등록에 성공했습니다.", result);
+        return ResponseEntity.ok(response);
     }
 }
