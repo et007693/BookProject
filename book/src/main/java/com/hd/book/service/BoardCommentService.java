@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional
@@ -22,6 +25,7 @@ public class BoardCommentService {
     private final BoardRepository boardRepository;
     private final BoardCommentRepository boardCommentRepository;
 
+    // 댓글 등록
     public void postBoardComment(Long boardId, BoardCommentWriteDto boardCommentWriteDto) {
         UserEntity user = userUtil.getUser();
         BoardEntity board = boardRepository.findById(boardId)
@@ -31,6 +35,16 @@ public class BoardCommentService {
         comment.setBoard(board);
         comment.setContent(boardCommentWriteDto.getContent());
         boardCommentRepository.save(comment);
+    }
+
+    // 댓글 목록 조회
+    public List<BoardCommentResDto> getBoardComments(Long boardId) {
+        List<BoardCommentEntity> comments = boardCommentRepository.findByBoardBoardId(boardId);
+        List<BoardCommentResDto> response = new ArrayList<>();
+        for (BoardCommentEntity comment: comments) {
+            response.add(convertEntityToDto(comment));
+        }
+        return response;
     }
 
     // DTO -> Entity
@@ -44,5 +58,16 @@ public class BoardCommentService {
         comment.setBoard(board);
         return comment;
     }
-    
+
+    // Entity -> Dto
+    private BoardCommentResDto convertEntityToDto(BoardCommentEntity boardCommentEntity) {
+        BoardCommentResDto comment = new BoardCommentResDto();
+        comment.setBoardCid(boardCommentEntity.getBoardCid());
+        comment.setComment(boardCommentEntity.getContent());
+        comment.setLike(boardCommentEntity.getLikeCount());
+        comment.setHate(boardCommentEntity.getHateCount());
+        comment.setCreatedAt(boardCommentEntity.getCreatedAt());
+        comment.setUserId(boardCommentEntity.getUser().getUserId());
+        return comment;
+    }
 }
