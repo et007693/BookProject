@@ -80,4 +80,17 @@ public class UserService {
                 .createdAt(user.getCreatedAt().toString())
                 .build();
     }
+
+    @Transactional
+    public void deleteByEmail(String email) {
+        // 사용자 조회
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("삭제할 유저를 찾을 수 없습니다.")
+                );
+
+        // 삭제
+        userRepository.delete(user);
+        log.info("사용자 삭제 완료: userId={}, email={}", user.getUserId(), user.getEmail());
+    }
 }
