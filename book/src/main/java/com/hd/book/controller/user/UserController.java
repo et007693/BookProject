@@ -88,6 +88,7 @@ public class UserController {
                     .body(error);
         }
     }
+
     @PatchMapping("/me")
     public ResponseEntity<ApiResponseDto<UserProfileDto>> updateMyProfile(
             @RequestHeader("Authorization") String bearerToken,
@@ -108,6 +109,27 @@ public class UserController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponseDto<Void>> deleteMyAccount(
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        String token = bearerToken
+                .replaceFirst("(?i)^Bearer\\s+", "")
+                .trim();
+
+        if (!jwtUtil.validateToken(token)) {
+            throw new BadCredentialsException("유효하지 않은 토큰입니다.");
+        }
+
+        String email = jwtUtil.getUserEmail(token);
+
+        userService.deleteByEmail(email);
+
+        ApiResponseDto<Void> response =
+                new ApiResponseDto<>(true, "계정이 성공적으로 삭제되었습니다.", null);
+        return ResponseEntity.ok(response);
+    }
+
 }
