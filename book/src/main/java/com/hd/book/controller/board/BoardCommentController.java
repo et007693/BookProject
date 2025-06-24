@@ -3,8 +3,12 @@ package com.hd.book.controller.board;
 import com.hd.book.dto.comment.BoardCommentResDto;
 import com.hd.book.dto.comment.BoardCommentWriteDto;
 import com.hd.book.dto.response.ApiResponseDto;
+import com.hd.book.entity.BoardCommentEntity;
+import com.hd.book.entity.BoardEntity;
+import com.hd.book.entity.UserEntity;
 import com.hd.book.repository.BoardRepository;
 import com.hd.book.service.BoardCommentService;
+import com.hd.book.util.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,13 +20,14 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/board/{boardId}")
+@RequestMapping("/api/board/{boardId}/comment")
 public class BoardCommentController {
     private final BoardCommentService boardCommentService;
     private final BoardRepository boardRepository;
+    private final UserUtil userUtil;
 
     // 댓글 등록
-    @PostMapping("/comment")
+    @PostMapping("/post")
     public ResponseEntity<ApiResponseDto<Void>> postBoardComment(@PathVariable Long boardId, @RequestBody BoardCommentWriteDto boardCommentWriteDto) {
         try {
             boardCommentService.postBoardComment(boardId, boardCommentWriteDto);
@@ -35,7 +40,7 @@ public class BoardCommentController {
     }
 
     // 댓글 조회
-    @GetMapping("/comment/list")
+    @GetMapping("/list")
     public ResponseEntity<ApiResponseDto<List<BoardCommentResDto>>> getBoardComment(@PathVariable Long boardId) {
         try {
             if (!boardRepository.existsById(boardId)) {
@@ -45,6 +50,23 @@ public class BoardCommentController {
             return ResponseEntity.ok(new ApiResponseDto<>(true, "댓글 조회 성공", comments));
         } catch (Exception e) {
             log.error("댓글 조회에 실패했습니다. {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        }
+    }
+
+    // 댓글 수정
+    // TODO: 수정하는 사람과 댓글을 쓴 유저가 같은지 확인하는 로직 작성
+    @PutMapping("/update/{commentId}")
+    public ResponseEntity<ApiResponseDto<Void>> updateBoardComment(
+            @PathVariable Long boardId,
+            @PathVariable Long commentId,
+            @RequestBody BoardCommentWriteDto boardCommentWriteDto) {
+        try{
+            boardCommentService.updateBoardComment(commentId, boardCommentWriteDto);
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "댓글 수정 성공", null));
+        } catch (Exception e) {
+            log.error("댓글 수정헤 실패했습니다. {}", e.getMessage());
             return ResponseEntity.badRequest()
                     .body(new ApiResponseDto<>(false, e.getMessage(), null));
         }

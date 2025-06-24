@@ -47,6 +47,14 @@ public class BoardCommentService {
         return response;
     }
 
+    // 댓글 수정
+    public void updateBoardComment(Long boardCId, BoardCommentWriteDto boardCommentWriteDto) {
+        BoardCommentEntity comment = boardCommentRepository.findById(boardCId)
+                .orElseThrow(() -> new RuntimeException("해당 댓글이 존재하지 않습니다"));
+        comment.setContent(boardCommentWriteDto.getContent());
+        boardCommentRepository.save(comment);
+    }
+
     // DTO -> Entity
     private BoardCommentEntity convertDtoToEntity(Long boardId, BoardCommentWriteDto boardCommentWriteDto) {
         UserEntity user = userUtil.getUser();
