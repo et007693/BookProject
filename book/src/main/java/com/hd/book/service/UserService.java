@@ -55,7 +55,7 @@ public class UserService {
                 .email(user.getEmail())
                 .bio(user.getBio())
                 .profileImage(user.getProfileImage())
-                .readPublic(user.isReadPublic())
+                .readHistoryVisible(user.isReadHistoryVisible())
                 .createdAt(user.getCreatedAt().toString())
                 .build();
     }
@@ -68,7 +68,7 @@ public class UserService {
         if (userProfileDto.getNickname() != null) user.setNickname(userProfileDto.getNickname());
         if (userProfileDto.getBio() != null) user.setBio(userProfileDto.getBio());
         if (userProfileDto.getProfileImage() != null) user.setProfileImage(userProfileDto.getProfileImage());
-        if (userProfileDto.getReadPublic() != null) user.setReadPublic(userProfileDto.getReadPublic());
+        if (userProfileDto.getReadHistoryVisible() != null) user.setReadHistoryVisible(userProfileDto.getReadHistoryVisible());
 
         return UserProfileDto.builder()
                 .userId(user.getUserId())
@@ -76,7 +76,7 @@ public class UserService {
                 .email(user.getEmail())
                 .bio(user.getBio())
                 .profileImage(user.getProfileImage())
-                .readPublic(user.isReadPublic())     // Boolean 리턴하는 엔티티 메서드
+                .readHistoryVisible(user.isReadHistoryVisible())     // Boolean 리턴하는 엔티티 메서드
                 .createdAt(user.getCreatedAt().toString())
                 .build();
     }
