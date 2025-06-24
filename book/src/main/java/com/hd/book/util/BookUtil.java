@@ -15,7 +15,7 @@ public class BookUtil {
     }
 
     public BookEntity getBookByIsbn(String isbn) {
-        return bookRepository.findByIsbn(isbn)
+        return bookRepository.findById(isbn)
                 .orElseThrow(() -> new RuntimeException("책 정보를 찾을 수 없습니다."));
     }
 }
