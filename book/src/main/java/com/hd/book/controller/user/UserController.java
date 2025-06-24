@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -86,5 +87,27 @@ public class UserController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(error);
         }
+    }
+    @PatchMapping("/me")
+    public ResponseEntity<ApiResponseDto<UserProfileDto>> updateMyProfile(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestBody @Validated UserProfileDto userProfileDto
+    ) {
+        try {
+            String token = bearerToken
+                    .replaceFirst("(?i)^Bearer\\s+", "")
+                    .trim();
+            if (!jwtUtil.validateToken(token)) {
+                throw new BadCredentialsException("유효하지 않은 토큰입니다.");
+            }
+            String email = jwtUtil.getUserEmail(token);
+            UserProfileDto updated = userService.updateMyProfile(email, userProfileDto);
+            ApiResponseDto<UserProfileDto> response =
+                    new ApiResponseDto<>(true, "내 프로필 정보가 성공적으로 수정되었습니다.", updated);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
