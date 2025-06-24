@@ -1,14 +1,23 @@
 package com.hd.book.service;
 
+import com.hd.book.constant.HistoryStatus;
 import com.hd.book.dto.auth.SignupRequestDto;
+import com.hd.book.dto.book.BookHistoryReqDto;
+import com.hd.book.dto.book.BookHistoryResDto;
 import com.hd.book.dto.user.UserProfileDto;
+import com.hd.book.entity.BookEntity;
+import com.hd.book.entity.HistoryEntity;
 import com.hd.book.entity.UserEntity;
+import com.hd.book.repository.BookRepository;
+import com.hd.book.repository.HistoryRepository;
 import com.hd.book.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +26,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BookRepository bookRepository;
+    private final HistoryRepository historyRepository;
 
     @Transactional
     public UserEntity register(SignupRequestDto dto) {
@@ -106,5 +117,58 @@ public class UserService {
                 .profileImage(user.getProfileImage())
                 .bio(user.getBio())
                 .build();
+    }
+
+    // 로그인된 사용자가 읽은 책을 등록한다.
+    @Transactional
+    public BookHistoryResDto registerReadHistory(String email, BookHistoryReqDto reqDto) {
+        // 사용자 조회
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // 책 조회
+        BookEntity book = bookRepository.findByIsbn(reqDto.getIsbn())
+                .orElseThrow(() -> new IllegalArgumentException("책을 찾을 수 없습니다."));
+
+        // 중복 검사
+        if (historyRepository.existsByUserAndBook(user, book)) {
+            throw new IllegalArgumentException("이미 등록되어 있는 책입니다.");
+        }
+
+        // 날짜 파싱
+        LocalDate start = LocalDate.parse(reqDto.getStartRead());
+        LocalDate end   = LocalDate.parse(reqDto.getEndRead());
+
+        // 상태 설정
+        HistoryStatus status = end.isBefore(start)
+                ? HistoryStatus.READING
+                : HistoryStatus.COMPLETED;
+
+        // 메모 값 가져오기
+        String memo = reqDto.getMemo();
+
+        // 엔티티 생성 및 저장
+        HistoryEntity history = HistoryEntity.builder()
+                .user(user)
+                .book(book)
+                .startDate(start)
+                .endDate(end)
+                .status(status)
+                .memo(memo)
+                .build();
+
+        HistoryEntity saved = historyRepository.save(history);
+        log.info("읽은 책이 등록되었습니다. historyId={}", saved.getHistoryid());
+
+        // ReadHistoryResDto에 맞춰 7개 인자를 넘깁니다.
+        return new BookHistoryResDto(
+                saved.getHistoryid(),         // Long historyId
+                Long.parseLong(book.getIsbn()),               // Long isbn
+                saved.getStartDate().toString(), // String startRead
+                saved.getEndDate().toString(),   // String endRead
+                status,                       // HistoryStatus status
+                saved.getMemo(),                         // String memo (없다면 null)
+                saved.getCreatedAt().toString() // String createdAt
+        );
     }
 }
