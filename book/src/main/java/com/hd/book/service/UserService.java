@@ -54,4 +54,25 @@ public class UserService {
                 .createdAt(user.getCreatedAt().toString())
                 .build();
     }
+
+    @Transactional
+    public UserProfileDto updateMyProfile(String email, UserProfileDto userProfileDto) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다. email=" + email));
+
+        if (userProfileDto.getNickname() != null) user.setNickname(userProfileDto.getNickname());
+        if (userProfileDto.getBio() != null) user.setBio(userProfileDto.getBio());
+        if (userProfileDto.getProfileImage() != null) user.setProfileImage(userProfileDto.getProfileImage());
+        if (userProfileDto.getReadPublic() != null) user.setReadPublic(userProfileDto.getReadPublic());
+
+        return UserProfileDto.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .bio(user.getBio())
+                .profileImage(user.getProfileImage())
+                .readPublic(user.isReadPublic())     // Boolean 리턴하는 엔티티 메서드
+                .createdAt(user.getCreatedAt().toString())
+                .build();
+    }
 }
