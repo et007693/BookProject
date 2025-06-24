@@ -28,15 +28,11 @@ public class BoardCommentEntity {
     @ColumnDefault("0")
     private Integer hateCount = 0;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     @PrePersist
     public void onCreate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-    @PreUpdate
-    public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     @ManyToOne
