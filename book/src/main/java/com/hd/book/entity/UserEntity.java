@@ -38,19 +38,16 @@ public class UserEntity {
     @Column(name = "bio")
     private String bio;
 
-    @Column(name = "phone")
-    private String phone;
+    @Column(name = "is_read")
+    private boolean readPublic = true;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
