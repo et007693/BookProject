@@ -3,6 +3,7 @@ package com.hd.book.controller.board;
 import com.hd.book.dto.board.BoardResDto;
 import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.dto.response.ApiResponseDto;
+import com.hd.book.service.BoardReactionService;
 import com.hd.book.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/board")
 public class BoardController {
     private final BoardService boardService;
+    private final BoardReactionService boardReactionService;
 
     //게시글 등록
     @PostMapping("/post")
@@ -96,4 +98,32 @@ public class BoardController {
         }
     }
 
+    // 도서로 게시글 조회
+    // TODO: 게시글 있는지 여부에 따라 오류 메시지
+    @GetMapping("/list/{isbn}")
+    public ResponseEntity<ApiResponseDto<Page<BoardResDto>>> bookBoardList(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @PathVariable String isbn) {
+        try {
+            Page<BoardResDto> boards = boardService.bookBoardList(isbn, pageable);
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "게시글 조회 성공", boards));
+        } catch (Exception e) {
+            log.error("게시글 조회에 실패했습니다. {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        }
+    }
+
+    // 게시글 좋아요 클릭
+    @PostMapping("like/{boardId}")
+    public ResponseEntity<ApiResponseDto<Integer>> likeBoard (@PathVariable Long boardId) {
+        try {
+            Integer likeCount = boardReactionService.toggleLike(boardId);
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "좋아요 클릭 성공", likeCount));
+        } catch (Exception e) {
+            log.error("오류가 발생하였습니다. {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        }
+    }
 }
