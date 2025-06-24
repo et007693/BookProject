@@ -24,12 +24,16 @@ public class BookCommentEntity {
     @Column(nullable = false)
     private Integer rate;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     @PrePersist
     public void onCreate() {
+        this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
