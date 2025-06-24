@@ -132,4 +132,21 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponseDto<UserProfileDto>> getUserProfile(
+            @PathVariable Long userId
+    ) {
+        try {
+            UserProfileDto profile = userService.getOtherProfile(userId);
+            ApiResponseDto<UserProfileDto> response =
+                    new ApiResponseDto<>(true, "사용자 프로필 조회에 성공했습니다.", profile);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            ApiResponseDto<UserProfileDto> error =
+                    new ApiResponseDto<>(false, "사용자를 찾을 수 없습니다.", null);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(error);
+        }
+    }
 }
