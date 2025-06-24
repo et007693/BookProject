@@ -57,4 +57,7 @@ public class BoardEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardReactionEntity> reaction = new ArrayList<>();
 }
