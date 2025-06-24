@@ -21,6 +21,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/board/{boardId}/comment")
+// TODO: 수정하는 사람과 댓글을 쓴 유저가 같은지 확인하는 로직 작성
 public class BoardCommentController {
     private final BoardCommentService boardCommentService;
     private final BoardRepository boardRepository;
@@ -56,7 +57,6 @@ public class BoardCommentController {
     }
 
     // 댓글 수정
-    // TODO: 수정하는 사람과 댓글을 쓴 유저가 같은지 확인하는 로직 작성
     @PutMapping("/update/{commentId}")
     public ResponseEntity<ApiResponseDto<Void>> updateBoardComment(
             @PathVariable Long boardId,
@@ -66,7 +66,20 @@ public class BoardCommentController {
             boardCommentService.updateBoardComment(commentId, boardCommentWriteDto);
             return ResponseEntity.ok(new ApiResponseDto<>(true, "댓글 수정 성공", null));
         } catch (Exception e) {
-            log.error("댓글 수정헤 실패했습니다. {}", e.getMessage());
+            log.error("댓글 수정에 실패했습니다. {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        }
+    }
+    
+    // 댓글 삭제
+    @DeleteMapping("delete/{commentId}")
+    public ResponseEntity<ApiResponseDto<Void>> deleteBoardComment (@PathVariable Long commentId) {
+        try {
+            boardCommentService.deleteBoardComment(commentId);
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "댓글 삭제 성공", null));
+        } catch (Exception e) {
+            log.error("댓글 삭제에 실패했습니다. {}", e.getMessage());
             return ResponseEntity.badRequest()
                     .body(new ApiResponseDto<>(false, e.getMessage(), null));
         }

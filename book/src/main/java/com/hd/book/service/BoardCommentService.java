@@ -48,11 +48,18 @@ public class BoardCommentService {
     }
 
     // 댓글 수정
-    public void updateBoardComment(Long boardCId, BoardCommentWriteDto boardCommentWriteDto) {
-        BoardCommentEntity comment = boardCommentRepository.findById(boardCId)
+    public void updateBoardComment(Long commentId, BoardCommentWriteDto boardCommentWriteDto) {
+        BoardCommentEntity comment = boardCommentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("해당 댓글이 존재하지 않습니다"));
         comment.setContent(boardCommentWriteDto.getContent());
         boardCommentRepository.save(comment);
+    }
+
+    // 댓글 삭제
+    public void deleteBoardComment(Long commentId) {
+        BoardCommentEntity comment = boardCommentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("해당 댓글이 존재하지 않습니다."));
+        boardCommentRepository.delete(comment);
     }
 
     // DTO -> Entity
