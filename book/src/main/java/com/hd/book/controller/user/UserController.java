@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
@@ -43,7 +40,7 @@ public class UserController {
         } catch (AuthenticationCredentialsNotFoundException e) {
             // Authorization 헤더 자체가 없거나 잘못된 경우
             ApiResponseDto<UserProfileDto> error =
-                    new ApiResponseDto<>(false, "Authorization 헤더 오기입", null);
+                    new ApiResponseDto<>(false, "Authorization 헤더 형식 오류 발생.", null);
 
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
