@@ -1,8 +1,11 @@
 package com.hd.book.service;
 
 import com.hd.book.dto.auth.SignupRequestDto;
+import com.hd.book.dto.user.UserProfileDto;
 import com.hd.book.entity.UserEntity;
 import com.hd.book.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,5 +40,21 @@ public class UserService {
         log.info("회원가입 성공: userId={}, email={}",
                 saved.getUserId(), saved.getEmail());
         return saved;
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileDto getMyProfile(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("유저 고유 아이디를 찾을 수 없습니다."));
+        return UserProfileDto.builder()
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .bio(user.getBio())
+                .phone(user.getPhone())
+                .profileImage(user.getProfileImage())
+                .createdAt(user.getCreatedAt().toString())
+                .updatedAt(user.getUpdatedAt().toString())
+                .build();
     }
 }
