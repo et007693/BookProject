@@ -92,6 +92,13 @@ public class BoardService {
         return boards.map(this::convertEntityToDto);
     }
 
+    // 게시글 조회
+    public BoardResDto boardDetail(Long boardId) {
+        BoardEntity book = boardRepository.findById(boardId)
+                .orElseThrow(() -> new RuntimeException("해당 게시물이 존재하지 않습니다."));
+        return convertEntityToDto(book);
+    }
+
     // TODO : 이미지 처리
     // DTO -> Entity
      private BoardEntity convertDtoToEntity(BoardWriteDto boardWriteDto) {
