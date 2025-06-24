@@ -1,7 +1,6 @@
 package com.hd.book.config;
 
 import com.hd.book.jwt.JwtAuthenticationFilter;
-import com.hd.book.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +32,13 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**", "/api/board/list", "/api/book/best").permitAll()
+                    .requestMatchers(
+                            "/api/auth/**",
+                            "/api/board/list",
+                            "/api/book/best",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**"
+                    ).permitAll()
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
