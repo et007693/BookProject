@@ -11,7 +11,7 @@ public class UserProfileDto {
     private final String email;
     private final String bio;
     private final String profileImage;
-    private final Boolean readPublic;
+    private final Boolean readHistoryVisible;
     private final String createdAt;
 
     @Builder
@@ -27,7 +27,7 @@ public class UserProfileDto {
         this.email = email;
         this.bio = bio;
         this.profileImage = profileImage;
-        this.readPublic = readPublic;          // Boolean 이므로 null 허용
+        this.readHistoryVisible = readPublic;          // Boolean 이므로 null 허용
         this.createdAt = createdAt;
     }
 }
