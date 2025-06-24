@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,11 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"user", "book"})
+@Builder
 public class HistoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "history_id")
-    private Long id;
+    private Long historyid;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -37,4 +39,12 @@ public class HistoryEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "isbn")
     private BookEntity book;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    private void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
