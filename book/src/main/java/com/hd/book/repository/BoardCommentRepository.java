@@ -11,4 +11,7 @@ import java.util.List;
 public interface BoardCommentRepository extends JpaRepository<BoardCommentEntity, Long> {
     // 책의 전체 댓글
     List<BoardCommentEntity> findByBoardBookIsbn(String isbn);
+
+    // 게시글의 전체 댓글
+    List<BoardCommentEntity> findByBoardBoardId(Long boardId);
 }

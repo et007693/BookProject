@@ -17,10 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {
-        "https://localhost:3000",
-        "https://localhost:5173",
-})
 @RequestMapping("/api/board")
 public class BoardController {
     private final BoardService boardService;
@@ -76,7 +72,7 @@ public class BoardController {
         try {
             Page<BoardResDto> response = boardService.boardList(pageable);
             return ResponseEntity.ok(new ApiResponseDto<>(true, "게시글 목록 조회 성공", response));
-        }catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(new ApiResponseDto<>(false, e.getMessage(), null));
         } catch (Exception e) {
@@ -84,4 +80,20 @@ public class BoardController {
                     .body(new ApiResponseDto<>(false, "알 수 없는 오류가 발생했습니다.", null));
         }
     }
+
+    // 게시글 조회
+    @GetMapping("{boardId}")
+    public ResponseEntity<ApiResponseDto<BoardResDto>> boardDetail(@PathVariable Long boardId) {
+        try {
+            BoardResDto response = boardService.boardDetail(boardId);
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "게시글 조회 성공", response));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponseDto<>(false, "알 수 없는 오류가 발생했습니다.", null));
+        }
+    }
+
 }
