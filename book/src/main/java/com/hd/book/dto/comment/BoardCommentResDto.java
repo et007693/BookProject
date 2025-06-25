@@ -13,4 +13,5 @@ public class BoardCommentResDto {
     Integer hate;
     LocalDateTime createdAt;
     Long userId;
+    String username;
 }
