@@ -1,5 +1,6 @@
 package com.hd.book.controller.board;
 
+import com.hd.book.dto.board.BoardLikeGroupResDto;
 import com.hd.book.dto.board.BoardResDto;
 import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.dto.response.ApiResponseDto;
@@ -84,7 +85,7 @@ public class BoardController {
     }
 
     // 게시글 조회
-    @GetMapping("{boardId}")
+    @GetMapping("/{boardId}")
     public ResponseEntity<ApiResponseDto<BoardResDto>> boardDetail(@PathVariable Long boardId) {
         try {
             BoardResDto response = boardService.boardDetail(boardId);
@@ -115,7 +116,7 @@ public class BoardController {
     }
 
     // 게시글 좋아요 클릭
-    @PostMapping("like/{boardId}")
+    @PostMapping("/like/{boardId}")
     public ResponseEntity<ApiResponseDto<Integer>> likeBoard (@PathVariable Long boardId) {
         try {
             Integer likeCount = boardReactionService.toggleLike(boardId);
@@ -124,6 +125,19 @@ public class BoardController {
             log.error("오류가 발생하였습니다. {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        }
+    }
+    
+    // 좋아요 상위 게시글 조회
+    @GetMapping("/like/list")
+    public ResponseEntity<ApiResponseDto<BoardLikeGroupResDto>> likeBoardList() {
+        try {
+            BoardLikeGroupResDto boards = boardService.bookLikeList();
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "좋아요 상위 게시글 조회 성공", boards));
+        } catch (Exception e) {
+            log.error("게시글 조회 중 오류가 발생하였습니다. {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponseDto<>(false, e.getMessage(), null));
         }
     }
 }
