@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -118,7 +119,7 @@ public class AuthController {
 
         // 1) DB 조회
         RefreshTokenEntity storedToken = refreshTokenService.findByToken(requestRefreshToken)
-                .orElseThrow(() -> new AuthenticationException("리프레시 토큰을 찾을 수 없습니다.") {
+                .orElseThrow(() -> new BadCredentialsException("리프레시 토큰을 찾을 수 없습니다.") {
                 });
         // 2) 만료 여부 검증 (만료 시 예외 발생)
         refreshTokenService.verifyExpiration(storedToken);
