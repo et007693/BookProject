@@ -11,9 +11,11 @@ import lombok.Setter;
 public class BookHistoryResDto {
     private Long historyId;
     private Long isbn;
+    private Long userId;
     private String startRead;
     private String endRead;
     private HistoryStatus status;
     private String memo;
     private String createdAt;
+    private String updatedAt;
 }
