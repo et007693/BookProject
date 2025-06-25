@@ -15,12 +15,16 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtUtil {
-    // 서명용 비밀키
-    @Value(value = "${jwt.secret:ChangeThisSecretKeyForProd}")
+    // 액세스 토큰 설정
+    @Value(value = "${jwt.secret:ChangeThisSecretKeyForProd}") // 서명용 비밀키
     private String secretKey;
 
-    @Value(value = "${jwt.expiration-in-ms:3600000}")
-    private long validityInMilliseconds;
+    @Value(value = "${jwt.expiration-in-ms:3600000}") // 1시간
+    private long accessTokenValidityInMs;
+
+    // 리프레시 토큰 설정
+    @Value("${jwt.refresh-expiration-in-ms:604800000}") // 7일
+    private long refreshTokenValidityInMs;
 
     private Key key;
 
@@ -29,17 +33,42 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    // JWT 토큰 생성
+    // 액세스 토큰 생성
     public String generateToken(String userEmail) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + validityInMilliseconds);
-
+        Date expiry = new Date(now.getTime() + accessTokenValidityInMs);
         return Jwts.builder()
                 .setSubject(userEmail)
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key)
                 .compact();
+    }
+
+    // 리프레시 토큰 생성
+    public String generateRefreshToken(String userEmail) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshTokenValidityInMs);
+        return Jwts.builder()
+                .setSubject(userEmail)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(key)
+                .compact();
+    }
+
+    // 토큰 유효성 검증
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.error("Invalid JWT token: {}", e.getMessage());
+            return false;
+        }
     }
 
     // 토큰에서 사용자 이메일 추출
@@ -61,19 +90,5 @@ public class JwtUtil {
                 .getBody()
                 .getSubject();
         return Long.valueOf(sub);
-    }
-
-    // 토큰 유효성 검증
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-            return false;
-        }
     }
 }
