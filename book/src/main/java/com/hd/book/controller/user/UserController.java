@@ -110,6 +110,7 @@ public class UserController {
                     new ApiResponseDto<>(true, "내 프로필 정보가 성공적으로 수정되었습니다.", updated);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            log.error("프로필 정보가 수정되지 않았습니다.");
             throw new RuntimeException(e);
         }
     }
