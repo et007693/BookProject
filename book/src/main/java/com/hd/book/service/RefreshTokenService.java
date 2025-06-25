@@ -20,12 +20,14 @@ public class RefreshTokenService {
     private final UserRepository userRepository;
 
     // 사용자 이메일로 리프레시 토큰을 생성하고 DB에 저장
+    @Transactional
     public RefreshTokenEntity createRefreshToken(String userEmail) {
         UserEntity user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다. : " + userEmail));
 
         // 기존에 발급된 리프레시 토큰이 있으면 삭제
         refreshTokenRepository.deleteByUser(user);
+        refreshTokenRepository.flush(); // 삭제 쿼리를 즉시 DB에 반영
 
         // 새로운 리프레쉬 토큰 문자열 생성
         String token = jwtUtil.generateRefreshToken(userEmail);
@@ -44,6 +46,7 @@ public class RefreshTokenService {
     }
 
     // 리프레시 토큰의 만료 여부 확인
+    @Transactional
     public RefreshTokenEntity verifyExpiration(RefreshTokenEntity tokenEntity) {
         // 만료 시각이 현재 시각 이전이면 토큰 만료
         if (tokenEntity.getExpiryDate().isBefore(Instant.now())) {
