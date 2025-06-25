@@ -1,5 +1,6 @@
 package com.hd.book.controller.user;
 
+import com.hd.book.dto.board.BoardResDto;
 import com.hd.book.dto.book.BookHistoryReqDto;
 import com.hd.book.dto.book.BookHistoryResDto;
 import com.hd.book.dto.book.BookHistoryUpdateDto;
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -253,5 +255,21 @@ public class UserController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(error);
         }
+    }
+
+    @GetMapping("/me/posts")
+    public ResponseEntity<ApiResponseDto<List<BoardResDto>>> getMyPosts(
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        String token = bearerToken.replaceFirst("(?i)^Bearer\\s+", "").trim();
+        if (!jwtUtil.validateToken(token)) {
+            throw new BadCredentialsException("Invalid token");
+        }
+        String email = jwtUtil.getUserEmail(token);
+
+        List<BoardResDto> posts = userService.getMyPosts(email);
+        ApiResponseDto<List<BoardResDto>> resp =
+                new ApiResponseDto<>(true, "내 게시글 목록 조회에 성공하였습니다.", posts);
+        return ResponseEntity.ok(resp);
     }
 }

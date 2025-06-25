@@ -2,19 +2,23 @@ package com.hd.book.service;
 
 import com.hd.book.constant.HistoryStatus;
 import com.hd.book.dto.auth.SignupRequestDto;
+import com.hd.book.dto.board.BoardResDto;
 import com.hd.book.dto.book.BookHistoryReqDto;
 import com.hd.book.dto.book.BookHistoryResDto;
 import com.hd.book.dto.book.BookHistoryUpdateDto;
 import com.hd.book.dto.user.UserProfileDto;
+import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.BookEntity;
 import com.hd.book.entity.HistoryEntity;
 import com.hd.book.entity.UserEntity;
+import com.hd.book.repository.BoardRepository;
 import com.hd.book.repository.BookRepository;
 import com.hd.book.repository.HistoryRepository;
 import com.hd.book.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.awt.print.Book;
+
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
@@ -36,6 +41,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final BookRepository bookRepository;
     private final HistoryRepository historyRepository;
+    private final BoardRepository boardRepository;
 
     // 회원가입
     @Transactional
@@ -307,4 +313,37 @@ public class UserService {
         // 실제 필드명이 userId라면 getUserId(), 아니면 getId() 사용
         return user.getUserId();
     }
+
+    // 내 게시글 조회 메서드
+    @Transactional(readOnly = true)
+    public List<BoardResDto> getMyPosts(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "사용자를 찾을 수 없습니다."
+                ));
+
+        // 게시글 조회
+        List<BoardEntity> boards = boardRepository
+                .findByUserUserId(user.getUserId(), Pageable.unpaged())
+                .getContent();
+
+        // DTO 변환
+        return boards.stream()
+                .map(b -> {
+                    BoardResDto dto = new BoardResDto();
+                    dto.setBoardId(b.getBoardId());
+                    dto.setType(b.getType().name());
+                    dto.setTitle(b.getTitle());
+                    dto.setContent(b.getContent());
+                    dto.setLikeCount(b.getLikeCount());
+                    dto.setCreatedAt(b.getCreatedAt());
+                    dto.setIsbn(b.getBook().getIsbn());
+                    dto.setUserId(b.getUser().getUserId());
+                    dto.setUsername(b.getUser().getNickname());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+
 }
