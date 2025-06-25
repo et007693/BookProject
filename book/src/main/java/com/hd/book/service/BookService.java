@@ -16,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -71,6 +73,14 @@ public class BookService {
 
         Long totalRatings = (long) comments.size();
 
+        Map<Integer, Long> scoreCounts = comments.stream()
+                .collect(Collectors.groupingBy(BookCommentEntity::getRate, Collectors.counting()));
+
+        for (int i = 1; i <= 5; i++) {
+            scoreCounts.putIfAbsent(i, 0L);
+        }
+
+
         Integer userScore = null;
         try {
             UserEntity currentUser = userUtil.getUser();
@@ -89,6 +99,7 @@ public class BookService {
                 .averageScore(averageScore)
                 .totalRatings(totalRatings)
                 .userScore(userScore)
+                .scoreCounts(scoreCounts)
                 .build();
     }
 }
