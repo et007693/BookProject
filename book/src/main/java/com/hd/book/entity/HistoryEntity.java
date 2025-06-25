@@ -6,8 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Entity
 @Table(name = "history")
@@ -43,8 +42,12 @@ public class HistoryEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @PrePersist
     private void onCreate() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }
