@@ -72,7 +72,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(
+    public ResponseEntity<?> login(
             @RequestBody LoginRequestDto request
     ) {
         try {
@@ -100,14 +100,15 @@ public class AuthController {
 
             return ResponseEntity.ok(new LoginResponseDto(token, refreshToken, nickname));
         } catch (AuthenticationException ex) {
-            // 인증 실패
+            Map<String,String> body = Map.of("[ERROR]", "이메일 또는 비밀번호 불일치");
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .build();
+                    .body(body);
         } catch (Exception ex) {
+            log.error("로그인 처리 중 예외 발생", ex);    // <<< 여기서 스택트레이스 로깅
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .build();
+                    .body(Map.of("[ERROR]", "내부 서버 오류 발생"));
         }
     }
 
