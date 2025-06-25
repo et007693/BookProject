@@ -1,5 +1,6 @@
 package com.hd.book.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
 
@@ -81,7 +83,7 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    // 토큰에서 사용자 고유 ID 추출
+    // 토큰에서 사용자 고유 ID 추출 (기존)
     public Long getUserId(String token) {
         String sub = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -90,6 +92,16 @@ public class JwtUtil {
                 .getBody()
                 .getSubject();
         return Long.valueOf(sub);
+    }
+
+    // 토큰에서 일반 클레임 추출
+    public <T> T getClaim(String token, String claimKey, Class<T> requiredType) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get(claimKey, requiredType);
     }
 
     // RefreshToken의 유효기간(ms) 값 반환
