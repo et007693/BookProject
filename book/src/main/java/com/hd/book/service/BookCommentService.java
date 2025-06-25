@@ -41,6 +41,16 @@ public class BookCommentService {
         bookCommentRepository.save(comment);
     }
 
+    // 댓글 삭제
+    public void deleteBookComment(Long commentId) {
+        BookCommentEntity comment = bookCommentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("해당 댓글을 찾을 수 없습니다."));
+        if (!userUtil.getUser().getUserId().equals(comment.getUser().getUserId())) {
+            throw new RuntimeException("댓글 삭제 권한이 없습니다.");
+        }
+        bookCommentRepository.delete(comment);
+    }
+
     // dto -> entity
     private BookCommentEntity convertDtoToEntity(BookCommentReqDto bookCommentReqDto) {
         UserEntity user = userUtil.getUser();

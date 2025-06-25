@@ -41,4 +41,17 @@ public class BookCommentController {
                     .body(new ApiResponseDto<>(false, e.getMessage(), null));
         }
     }
+
+    // 댓글 삭제
+    @DeleteMapping("delete/{commentId}")
+    public ResponseEntity<ApiResponseDto<Void>> deleteBookComment(@PathVariable Long commentId) {
+        try {
+            bookCommentService.deleteBookComment(commentId);
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "댓글 삭제 성공", null));
+        } catch (Exception e) {
+            log.error("댓글 삭제에 실패했습니다. {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        }
+    }
 }
