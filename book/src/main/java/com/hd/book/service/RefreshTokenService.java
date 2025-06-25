@@ -8,6 +8,7 @@ import com.hd.book.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -58,5 +59,13 @@ public class RefreshTokenService {
     // 토큰 문자열로 DB에서 리프레시 토큰 엔티티를 조회
     public Optional<RefreshTokenEntity> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
+    }
+
+    // 로그아웃 메서드
+    @Transactional
+    public void deleteByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        refreshTokenRepository.deleteByUser(user);
     }
 }
