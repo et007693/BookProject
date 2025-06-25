@@ -1,4 +1,4 @@
-package com.hd.book.dto.book;
+package com.hd.book.dto.comment;
 
 import lombok.Getter;
 import lombok.Setter;
