@@ -5,7 +5,6 @@ import com.hd.book.dto.auth.LoginRequestDto;
 import com.hd.book.dto.auth.LoginResponseDto;
 import com.hd.book.dto.auth.SignupRequestDto;
 import com.hd.book.entity.RefreshTokenEntity;
-import com.hd.book.entity.UserEntity;
 import com.hd.book.jwt.JwtUtil;
 import com.hd.book.service.RefreshTokenService;
 import com.hd.book.service.UserService;
@@ -18,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -133,6 +133,17 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 new JwtResponseDto(newAccessToken, newRefreshToken));
+    }
+
+    // 사용자 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+        refreshTokenService.deleteByEmail(email);
+        return ResponseEntity.ok().build();
     }
 }
 
