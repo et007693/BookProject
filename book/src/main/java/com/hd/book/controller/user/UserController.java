@@ -176,4 +176,44 @@ public class UserController {
                 new ApiResponseDto<>(true, "읽은 책 등록에 성공했습니다.", result);
         return ResponseEntity.ok(response);
     }
+
+    // 읽은 책 목록 조회
+    @GetMapping("/me/books")
+    public ResponseEntity<ApiResponseDto<java.util.List<BookHistoryResDto>>> getReadBookList(
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        try {
+            String token = bearerToken
+                    .replaceFirst("(?i)^Bearer\\s+", "")
+                    .trim();
+
+            if (!jwtUtil.validateToken(token)) {
+                throw new BadCredentialsException("유효하지 않은 토큰입니다.");
+            }
+            Long userId = jwtUtil.getUserId(token);
+
+            // Service에서 자신의 읽은 책 목록을 가져온다
+            java.util.List<BookHistoryResDto> historyList = userService.getMyReadBooks(userId);
+
+            ApiResponseDto<java.util.List<BookHistoryResDto>> response =
+                    new ApiResponseDto<>(true, "읽은 책 목록 조회에 성공하였습니다.", historyList);
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException | JwtException | IllegalArgumentException ex) {
+            // 인증 또는 토큰 처리 에러
+            ApiResponseDto<java.util.List<BookHistoryResDto>> error =
+                    new ApiResponseDto<>(false, ex.getMessage(), null);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(error);
+        } catch (Exception ex) {
+            // 기타 서버 에러
+            log.error("읽은 책 목록 조회 중 예외 발생", ex);
+            ApiResponseDto<java.util.List<BookHistoryResDto>> error =
+                    new ApiResponseDto<>(false, "서버 내부 오류가 발생했습니다.", null);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(error);
+        }
+    }
 }
