@@ -191,7 +191,12 @@ public class UserController {
             if (!jwtUtil.validateToken(token)) {
                 throw new BadCredentialsException("유효하지 않은 토큰입니다.");
             }
-            Long userId = jwtUtil.getUserId(token);
+
+            // 이메일 추출
+            String email = jwtUtil.getUserEmail(token);
+
+            // 이메일로부터 사용자 ID를 서비스에서 조회
+            Long userId = userService.resolveUserIdByEmail(email);
 
             // Service에서 자신의 읽은 책 목록을 가져온다
             java.util.List<BookHistoryResDto> historyList = userService.getMyReadBooks(userId);
