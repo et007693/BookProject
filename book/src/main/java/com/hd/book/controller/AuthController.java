@@ -2,8 +2,10 @@ package com.hd.book.controller;
 
 import com.hd.book.dto.auth.JwtResponseDto;
 import com.hd.book.dto.auth.LoginRequestDto;
+import com.hd.book.dto.auth.LoginResponseDto;
 import com.hd.book.dto.auth.SignupRequestDto;
 import com.hd.book.entity.RefreshTokenEntity;
+import com.hd.book.entity.UserEntity;
 import com.hd.book.jwt.JwtUtil;
 import com.hd.book.service.RefreshTokenService;
 import com.hd.book.service.UserService;
@@ -69,7 +71,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponseDto> login(
+    public ResponseEntity<LoginResponseDto> login(
             @RequestBody LoginRequestDto request
     ) {
         try {
@@ -87,9 +89,15 @@ public class AuthController {
                     .createRefreshToken(authentication.getName())
                     .getToken();
 
+            // 사용자 닉네임 조회
+            String email = authentication.getName();
+            String nickname = userService
+                    .getMyProfile(email)
+                    .getNickname();
+
             log.info("[INFO] 로그인 및 토큰 발급에 성공했습니다.");
 
-            return ResponseEntity.ok(new JwtResponseDto(token, refreshToken));
+            return ResponseEntity.ok(new LoginResponseDto(token, refreshToken, nickname));
         } catch (AuthenticationException ex) {
             // 인증 실패
             return ResponseEntity
