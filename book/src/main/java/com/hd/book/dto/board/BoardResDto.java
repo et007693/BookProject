@@ -16,4 +16,5 @@ public class BoardResDto {
     //    private String image;
     private String isbn;
     private Long userId;
+    private String username;
 }

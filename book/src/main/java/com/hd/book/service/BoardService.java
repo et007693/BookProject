@@ -130,6 +130,7 @@ public class BoardService {
         boardResDto.setCreatedAt(boardEntity.getCreatedAt());
         boardResDto.setIsbn(boardEntity.getBook().getIsbn());
         boardResDto.setUserId(boardEntity.getUser().getUserId());
+        boardResDto.setUsername(boardEntity.getUser().getNickname());
         return boardResDto;
     }
 
