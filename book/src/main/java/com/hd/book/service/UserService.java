@@ -31,6 +31,7 @@ public class UserService {
     private final BookRepository bookRepository;
     private final HistoryRepository historyRepository;
 
+    // 회원가입
     @Transactional
     public UserEntity register(SignupRequestDto dto) {
         // 이메일 중복 체크
@@ -58,6 +59,7 @@ public class UserService {
         return saved;
     }
 
+    // 내 정보 조회
     @Transactional(readOnly = true)
     public UserProfileDto getMyProfile(String email) {
         UserEntity user = userRepository.findByEmail(email)
@@ -73,6 +75,7 @@ public class UserService {
                 .build();
     }
 
+    // 사용자 정보 수정
     @Transactional
     public UserProfileDto updateMyProfile(String email, UserProfileDto userProfileDto) {
         UserEntity user = userRepository.findByEmail(email)
@@ -89,11 +92,12 @@ public class UserService {
                 .email(user.getEmail())
                 .bio(user.getBio())
                 .profileImage(user.getProfileImage())
-                .readHistoryVisible(user.isReadHistoryVisible())     // Boolean 리턴하는 엔티티 메서드
+                .readHistoryVisible(user.isReadHistoryVisible())
                 .createdAt(user.getCreatedAt().toString())
                 .build();
     }
 
+    // 회원(사용자) 삭제
     @Transactional
     public void deleteByEmail(String email) {
         // 사용자 조회
@@ -107,9 +111,9 @@ public class UserService {
         log.info("사용자 삭제 완료: userId={}, email={}", user.getUserId(), user.getEmail());
     }
 
+    // 다른 사용자의 정보 조회
     @Transactional(readOnly = true)
     public UserProfileDto getOtherProfile(Long userId) {
-        // 사용자 조회
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() ->
                         new RuntimeException("사용자를 찾을 수 없습니다. userId=" + userId));
