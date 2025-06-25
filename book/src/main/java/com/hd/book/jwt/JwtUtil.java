@@ -91,4 +91,9 @@ public class JwtUtil {
                 .getSubject();
         return Long.valueOf(sub);
     }
+
+    // RefreshToken의 유효기간(ms) 값 반환
+    public long getRefreshTokenValidityInMs() {
+        return this.refreshTokenValidityInMs;
+    }
 }
