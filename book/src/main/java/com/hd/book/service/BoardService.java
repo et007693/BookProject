@@ -9,7 +9,6 @@ import com.hd.book.entity.UserEntity;
 import com.hd.book.repository.BoardRepository;
 import com.hd.book.repository.BookRepository;
 import com.hd.book.repository.UserRepository;
-import com.hd.book.util.BookUtil;
 import com.hd.book.util.UserUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,6 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BookService bookService;
     private final UserUtil userUtil;
-    private final BookUtil bookUtil;
 
     // 게시글 등록
     public boolean postBoard(BoardWriteDto boardWriteDto) {
