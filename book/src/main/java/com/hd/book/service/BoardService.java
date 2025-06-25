@@ -129,6 +129,7 @@ public class BoardService {
         boardResDto.setLikeCount(boardEntity.getLikeCount());
         boardResDto.setCreatedAt(boardEntity.getCreatedAt());
         boardResDto.setIsbn(boardEntity.getBook().getIsbn());
+        boardResDto.setUserId(boardEntity.getUser().getUserId());
         return boardResDto;
     }
 
