@@ -21,4 +21,7 @@ public interface HistoryRepository extends JpaRepository<HistoryEntity, Long> {
     List<HistoryEntity> findByUserUserIdAndStatus(Long UserId, String status);
 
     boolean existsByUserAndBook(UserEntity user, BookEntity book);
+
+    // 독서 기록 최신순 조회
+    List<HistoryEntity> findAllByUserOrderByStartDateDesc(UserEntity user);
 }
