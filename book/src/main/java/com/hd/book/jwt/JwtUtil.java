@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Component
@@ -37,11 +41,20 @@ public class JwtUtil {
 
     // 액세스 토큰 생성
     public String generateToken(String userEmail) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + accessTokenValidityInMs);
+        LocalDateTime now = LocalDateTime.now();
+        // 발행 시각 Instant 변환
+        Instant issuedAtInstant = now.atZone(ZoneId.systemDefault()).toInstant();
+        // 만료 시각 계산 (밀리초 단위)
+        Instant expiryInstant = now
+                .plus(accessTokenValidityInMs, ChronoUnit.MILLIS)
+                .atZone(ZoneId.systemDefault())
+                .toInstant();
+        Date issuedAt = Date.from(issuedAtInstant);
+        Date expiry   = Date.from(expiryInstant);
+
         return Jwts.builder()
                 .setSubject(userEmail)
-                .setIssuedAt(now)
+                .setIssuedAt(issuedAt)
                 .setExpiration(expiry)
                 .signWith(key)
                 .compact();
@@ -49,11 +62,19 @@ public class JwtUtil {
 
     // 리프레시 토큰 생성
     public String generateRefreshToken(String userEmail) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + refreshTokenValidityInMs);
+        LocalDateTime now = LocalDateTime.now();
+        Instant issuedAtInstant = now.atZone(ZoneId.systemDefault()).toInstant();
+        Instant expiryInstant = now
+                .plus(refreshTokenValidityInMs, ChronoUnit.MILLIS)
+                .atZone(ZoneId.systemDefault())
+                .toInstant();
+
+        Date issuedAt = Date.from(issuedAtInstant);
+        Date expiry   = Date.from(expiryInstant);
+
         return Jwts.builder()
                 .setSubject(userEmail)
-                .setIssuedAt(now)
+                .setIssuedAt(issuedAt)
                 .setExpiration(expiry)
                 .signWith(key)
                 .compact();
