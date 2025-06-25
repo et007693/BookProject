@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.awt.print.Book;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,9 +134,20 @@ public class UserService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
+        // isbn 형식 검증
+        String isbn = reqDto.getIsbn();
+        if (isbn == null || !(isbn.length() == 10 || isbn.length() == 13)) {
+            throw new IllegalArgumentException("잘못된 ISBN 형식입니다. ISBN은 13자리 또는 10자리여야 합니다.");
+        }
+
         // 책 조회
         BookEntity book = bookRepository.findByIsbn(reqDto.getIsbn())
-                .orElseThrow(() -> new IllegalArgumentException("책을 찾을 수 없습니다."));
+                .orElseGet(() -> {
+                    BookEntity newBook = new BookEntity();
+                    newBook.setIsbn(reqDto.getIsbn());
+                    log.info("새 책을 등록합니다. isbn={}", newBook.getIsbn());
+                    return bookRepository.save(newBook);
+                });
 
         // 중복 검사
         if (historyRepository.existsByUserAndBook(user, book)) {
