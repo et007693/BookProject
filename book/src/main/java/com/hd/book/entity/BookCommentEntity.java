@@ -18,7 +18,7 @@ public class BookCommentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookCid;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 200)
     private String content;
 
     @Column(nullable = false)

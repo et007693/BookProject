@@ -23,15 +23,28 @@ public class BookCommentService {
     private final UserUtil userUtil;
 
     // 댓글 작성
-    public void postBookComment(String isbn, BookCommentReqDto bookCommentReqDto) {
-        BookCommentEntity comment = convertDtoToEntity(isbn, bookCommentReqDto);
+    public void postBookComment(BookCommentReqDto bookCommentReqDto) {
+        BookCommentEntity comment = convertDtoToEntity(bookCommentReqDto);
+        bookCommentRepository.save(comment);
+    }
+
+    // 댓글 수정
+    public void updateBookComment(Long commentId, BookCommentReqDto bookCommentReqDto) {
+        BookCommentEntity comment = bookCommentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("해당 댓글을 찾을 수 없습니다."));
+        if (!userUtil.getUser().getUserId().equals(comment.getUser().getUserId())) {
+            throw new RuntimeException("댓글 수정 권한이 없습니다.");
+        }
+        comment.setContent(bookCommentReqDto.getContent());
+        comment.setRate(bookCommentReqDto.getRate());
+        comment.setBook(bookService.getOrCreateBook(bookCommentReqDto.getIsbn()));
         bookCommentRepository.save(comment);
     }
 
     // dto -> entity
-    private BookCommentEntity convertDtoToEntity(String isbn, BookCommentReqDto bookCommentReqDto) {
+    private BookCommentEntity convertDtoToEntity(BookCommentReqDto bookCommentReqDto) {
         UserEntity user = userUtil.getUser();
-        BookEntity book = bookService.getOrCreateBook(isbn);
+        BookEntity book = bookService.getOrCreateBook(bookCommentReqDto.getIsbn());
         BookCommentEntity bookCommentEntity = new BookCommentEntity();
         bookCommentEntity.setUser(user);
         bookCommentEntity.setBook(book);
