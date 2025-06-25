@@ -4,6 +4,7 @@ import com.hd.book.constant.HistoryStatus;
 import com.hd.book.dto.auth.SignupRequestDto;
 import com.hd.book.dto.book.BookHistoryReqDto;
 import com.hd.book.dto.book.BookHistoryResDto;
+import com.hd.book.dto.book.BookHistoryUpdateDto;
 import com.hd.book.dto.user.UserProfileDto;
 import com.hd.book.entity.BookEntity;
 import com.hd.book.entity.HistoryEntity;
@@ -14,11 +15,14 @@ import com.hd.book.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import java.awt.print.Book;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -190,6 +194,79 @@ public class UserService {
                 saved.getMemo(),
                 saved.getCreatedAt().toString(),
                 saved.getUpdatedAt().toString()
+        );
+    }
+
+    // 사용자가 등록한 책의 상태를 수정
+    @Transactional
+    public BookHistoryResDto updateReadHistory(
+            String email,
+            Long historyId,
+            BookHistoryUpdateDto updateDto
+    ) {
+        // 사용자 조회
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // 기존 히스토리 조회
+        HistoryEntity history = historyRepository.findById(historyId)
+                .orElseThrow(()-> new EntityNotFoundException("읽은책을 등록한 기록을 찾을 수 없습니다."));
+
+        // 토큰 검증
+        if (!history.getUser().getUserId().equals(user.getUserId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "본인의 기록만 수정할 수 있습니다."
+            );
+        }
+
+        // 요청된 필드별로 선택적 업데이트
+        if (updateDto.getStartRead() != null) {
+            try {
+                LocalDate start = LocalDate.parse(updateDto.getStartRead());
+                history.setStartDate(start);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("날짜 입력 형식 오류. YYYY-MM-DD 이어야 합니다.");
+            }
+        }
+
+        if (updateDto.getEndRead() != null) {
+            try {
+                LocalDate end = LocalDate.parse(updateDto.getEndRead());
+                history.setEndDate(end);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("날짜 입력 형식 오류. YYYY-MM-DD 이어야 합니다.");
+            }
+        }
+
+        if (updateDto.getMemo() != null) {
+            history.setMemo(updateDto.getMemo());
+        }
+
+        if (updateDto.getStatus() != null) {
+            HistoryStatus newStatus;
+            try {
+                newStatus = HistoryStatus.valueOf(updateDto.getStatus().toString().toUpperCase());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("허용되지 않는 status 값입니다. READING 또는 COMPLETED 이어야 합니다.");
+            }
+            history.setStatus(newStatus);
+        }
+
+        // 저장
+        HistoryEntity updated = historyRepository.save(history);
+        log.info("등록된 책의 정보가 수정되었습니다.");
+
+        return new BookHistoryResDto(
+                updated.getHistoryid(),
+                Long.parseLong(updated.getBook().getIsbn()),
+                updated.getUser().getUserId(),
+                updated.getStartDate().toString(),
+                updated.getEndDate().toString(),
+                updated.getStatus(),
+                updated.getMemo(),
+                updated.getCreatedAt().toString(),
+                updated.getUpdatedAt().toString()
         );
     }
 
