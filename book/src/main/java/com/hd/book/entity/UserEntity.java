@@ -16,7 +16,7 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor
 @ToString(exclude = {"histories"})
-// TODO: JWT 적용
+
 public class UserEntity {
     @Id
     @Column(name = "user_id")
