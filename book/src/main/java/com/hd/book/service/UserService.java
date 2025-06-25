@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -162,13 +164,41 @@ public class UserService {
 
         // ReadHistoryResDto에 맞춰 7개 인자를 넘깁니다.
         return new BookHistoryResDto(
-                saved.getHistoryid(),         // Long historyId
-                Long.parseLong(book.getIsbn()),               // Long isbn
-                saved.getStartDate().toString(), // String startRead
-                saved.getEndDate().toString(),   // String endRead
-                status,                       // HistoryStatus status
-                saved.getMemo(),                         // String memo (없다면 null)
-                saved.getCreatedAt().toString() // String createdAt
+                saved.getHistoryid(),
+                Long.parseLong(book.getIsbn()),
+                saved.getUser().getUserId(),
+                saved.getStartDate().toString(),
+                saved.getEndDate().toString(),
+                status,
+                saved.getMemo(),
+                saved.getCreatedAt().toString(),
+                saved.getUpdatedAt().toString()
         );
+    }
+
+    // 읽은 책 목록 조회
+    @Transactional
+    public List<BookHistoryResDto> getMyReadBooks(Long userId) {
+        // 사용자 확인
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        // 히스토리 조회
+        List<HistoryEntity> histories = historyRepository.findAllByUserOrderByStartDateDesc(user);
+
+        // DTO 변환
+        return
+        histories.stream()
+                .map(h -> new BookHistoryResDto(
+                        h.getHistoryid(),
+                        Long.parseLong(h.getBook().getIsbn()),
+                        user.getUserId(),
+                        h.getStartDate().toString(),
+                        h.getEndDate().toString(),
+                        h.getStatus(),
+                        h.getMemo(),
+                        h.getCreatedAt().toString(),
+                        h.getUpdatedAt().toString()
+                ))
+                .collect(Collectors.toList());
     }
 }
