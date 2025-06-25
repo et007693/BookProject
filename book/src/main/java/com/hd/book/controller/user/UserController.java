@@ -2,6 +2,7 @@ package com.hd.book.controller.user;
 
 import com.hd.book.dto.book.BookHistoryReqDto;
 import com.hd.book.dto.book.BookHistoryResDto;
+import com.hd.book.dto.book.BookHistoryUpdateDto;
 import com.hd.book.dto.response.ApiResponseDto;
 import com.hd.book.dto.user.UserProfileDto;
 import com.hd.book.jwt.JwtUtil;
@@ -176,6 +177,37 @@ public class UserController {
         ApiResponseDto<BookHistoryResDto> response =
                 new ApiResponseDto<>(true, "읽은 책 등록에 성공했습니다.", result);
         return ResponseEntity.ok(response);
+    }
+
+    // 등록한 책의 상태 및 기록 수정
+    @PatchMapping("/me/books/{historyId}")
+    public ResponseEntity<ApiResponseDto<BookHistoryResDto>> updateReadBook(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable Long historyId,
+            @RequestBody @Validated BookHistoryUpdateDto updateDto
+    ) {
+        try {
+            String token = bearerToken
+                    .replaceFirst("(?i)^Bearer\\s+", "")
+                    .trim();
+            String email = jwtUtil.getUserEmail(token);
+
+            BookHistoryResDto updated = userService.updateReadHistory(email, historyId, updateDto);
+
+            ApiResponseDto<BookHistoryResDto> response =
+                    new ApiResponseDto<>(true, "읽은 책 기록 수정에 성공했습니다.", updated);
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException | JwtException e) {
+            ApiResponseDto<BookHistoryResDto> error =
+                    new ApiResponseDto<>(false, e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        } catch (Exception e) {
+        // 기타 서버 오류
+        log.error("읽은 책 기록 수정 중 예외 발생", e);
+        ApiResponseDto<BookHistoryResDto> error =
+                new ApiResponseDto<>(false, "서버 내부 오류가 발생했습니다.", null);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
     }
 
     // 읽은 책 목록 조회
