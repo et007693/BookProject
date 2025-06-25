@@ -1,6 +1,7 @@
 package com.hd.book.service;
 
 import com.hd.book.constant.BoardType;
+import com.hd.book.dto.board.BoardLikeGroupResDto;
 import com.hd.book.dto.board.BoardResDto;
 import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.entity.BoardEntity;
@@ -103,6 +104,20 @@ public class BoardService {
     public Page<BoardResDto> bookBoardList(String isbn, Pageable pageable) {
         Page<BoardEntity> boards = boardRepository.findByBookIsbn(isbn, pageable);
         return boards.map(this::convertEntityToDto);
+    }
+
+    // 좋아요 상위 게시글 조회
+    public BoardLikeGroupResDto bookLikeList() {
+        List<BoardEntity> bookEntities = boardRepository.findTop5ByTypeOrderByLikeCountDesc(BoardType.BOOK);
+        List<BoardEntity> forumEntities = boardRepository.findTop5ByTypeOrderByLikeCountDesc(BoardType.FORUM);
+        List<BoardResDto> bookBoards = bookEntities.stream()
+                .map(this::convertEntityToDto)
+                .toList();
+
+        List<BoardResDto> forumBoards = forumEntities.stream()
+                .map(this::convertEntityToDto)
+                .toList();
+        return new BoardLikeGroupResDto(bookBoards, forumBoards);
     }
 
     // TODO : 이미지 처리
