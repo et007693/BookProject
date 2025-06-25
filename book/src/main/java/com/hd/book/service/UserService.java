@@ -11,6 +11,7 @@ import com.hd.book.entity.UserEntity;
 import com.hd.book.repository.BookRepository;
 import com.hd.book.repository.HistoryRepository;
 import com.hd.book.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -204,5 +205,17 @@ public class UserService {
                         h.getUpdatedAt().toString()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    // 이메일을 통해 사용자 ID를 반환
+    @Transactional(readOnly = true)
+    public Long resolveUserIdByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("User not found with email: %s", email)
+                ));
+
+        // 실제 필드명이 userId라면 getUserId(), 아니면 getId() 사용
+        return user.getUserId();
     }
 }
