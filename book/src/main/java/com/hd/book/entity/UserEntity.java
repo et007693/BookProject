@@ -38,8 +38,8 @@ public class UserEntity {
     @Column(name = "bio")
     private String bio;
 
-    @Column(name = "read_history_visible")
-    private boolean readHistoryVisible = true;
+    @Column(name = "read_history_visible", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean readHistoryVisible;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
