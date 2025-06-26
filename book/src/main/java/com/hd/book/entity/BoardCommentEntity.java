@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "board_comment")
@@ -42,4 +44,8 @@ public class BoardCommentEntity {
     @ManyToOne
     @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity board;
+
+    @OneToMany(mappedBy = "boardComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardCommentReactionEntity> reactions = new ArrayList<>();
+
 }

@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 public class BoardCommentResDto {
     Long boardCid;
     String comment;
-    Integer like;
-    Integer hate;
+    Integer likeCount;
+    Integer hateCount;
     LocalDateTime createdAt;
     Long userId;
     String username;

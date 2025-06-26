@@ -1,12 +1,12 @@
 package com.hd.book.controller.board;
 
+import com.hd.book.constant.ReactionType;
+import com.hd.book.dto.comment.BoardCommentReactionResDto;
 import com.hd.book.dto.comment.BoardCommentResDto;
 import com.hd.book.dto.comment.BoardCommentWriteDto;
 import com.hd.book.dto.response.ApiResponseDto;
-import com.hd.book.entity.BoardCommentEntity;
-import com.hd.book.entity.BoardEntity;
-import com.hd.book.entity.UserEntity;
 import com.hd.book.repository.BoardRepository;
+import com.hd.book.service.BoardCommentReactionService;
 import com.hd.book.service.BoardCommentService;
 import com.hd.book.util.UserUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api/board/{boardId}/comment")
 // TODO: 수정하는 사람과 댓글을 쓴 유저가 같은지 확인하는 로직 작성
 public class BoardCommentController {
+    private final BoardCommentReactionService boardCommentReactionService;
     private final BoardCommentService boardCommentService;
     private final BoardRepository boardRepository;
     private final UserUtil userUtil;
@@ -73,7 +74,7 @@ public class BoardCommentController {
     }
     
     // 댓글 삭제
-    @DeleteMapping("delete/{commentId}")
+    @DeleteMapping("/delete/{commentId}")
     public ResponseEntity<ApiResponseDto<Void>> deleteBoardComment (@PathVariable Long commentId) {
         try {
             boardCommentService.deleteBoardComment(commentId);
@@ -83,5 +84,23 @@ public class BoardCommentController {
             return ResponseEntity.badRequest()
                     .body(new ApiResponseDto<>(false, e.getMessage(), null));
         }
+    }
+
+    // 댓글 반응 클릭
+    @PostMapping("{commentId}/{type}")
+    public ResponseEntity<ApiResponseDto<BoardCommentReactionResDto>> reactComment(
+            @PathVariable Long commentId,
+            @PathVariable ReactionType type
+        )
+    {
+        try {
+            BoardCommentReactionResDto reaction = boardCommentReactionService.clickCommentReaction(commentId, type);
+            return ResponseEntity.ok(new ApiResponseDto<>(true, "좋아요/싫어요가 반영되었습니다.", reaction));
+        } catch (Exception e) {
+            log.error("오류가 발생하였습니다. {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponseDto<>(false, e.getMessage(), null));
+        }
+
     }
 }
