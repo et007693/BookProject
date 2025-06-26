@@ -49,7 +49,7 @@ public class BoardCommentReactionService {
         comment.setHateCount(boardCommentReactionRepository.countByBoardCommentAndReactionType(comment, ReactionType.DISLIKE));
         boardCommentRepository.save(comment);
 
-        return new BoardCommentReactionResDto(comment.getLikeCount(), comment.getHateCount());
+        return new BoardCommentReactionResDto(commentId, comment.getLikeCount(), comment.getHateCount());
 
     }
 }

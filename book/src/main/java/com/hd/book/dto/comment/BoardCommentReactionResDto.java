@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter @Setter
 @AllArgsConstructor
 public class BoardCommentReactionResDto {
+    private Long commentId;
     private int likeCount;
     private int hateCount;
 }
