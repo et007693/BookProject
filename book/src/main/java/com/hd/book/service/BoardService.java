@@ -7,9 +7,8 @@ import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.BookEntity;
 import com.hd.book.entity.UserEntity;
+import com.hd.book.repository.BoardReactionRepository;
 import com.hd.book.repository.BoardRepository;
-import com.hd.book.repository.BookRepository;
-import com.hd.book.repository.UserRepository;
 import com.hd.book.util.UserUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -27,8 +25,7 @@ import java.util.List;
 @Transactional
 @RequiredArgsConstructor
 public class BoardService {
-    private final UserRepository userRepository;
-    private final BookRepository bookRepository;
+    private final BoardReactionRepository boardReactionRepository;
     private final BoardRepository boardRepository;
     private final BookService bookService;
     private final UserUtil userUtil;
@@ -144,6 +141,7 @@ public class BoardService {
         boardResDto.setIsbn(boardEntity.getBook().getIsbn());
         boardResDto.setUserId(boardEntity.getUser().getUserId());
         boardResDto.setUsername(boardEntity.getUser().getNickname());
+        boardResDto.setIsLiked(boardReactionRepository.existsByUserAndBoard(userUtil.getUser(), boardEntity));
         return boardResDto;
     }
 

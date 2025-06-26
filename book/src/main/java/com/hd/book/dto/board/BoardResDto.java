@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter @Setter
 public class BoardResDto {
     private Long boardId;
+    private Boolean isLiked;
     private String type;
     private String title;
     private String content;
@@ -17,4 +18,5 @@ public class BoardResDto {
     private String isbn;
     private Long userId;
     private String username;
+
 }
