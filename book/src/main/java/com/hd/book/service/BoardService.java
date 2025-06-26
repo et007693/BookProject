@@ -144,5 +144,4 @@ public class BoardService {
         boardResDto.setIsLiked(boardReactionRepository.existsByUserAndBoard(userUtil.getUser(), boardEntity));
         return boardResDto;
     }
-
 }
