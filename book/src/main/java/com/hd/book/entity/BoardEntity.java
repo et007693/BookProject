@@ -33,6 +33,8 @@ public class BoardEntity {
 
     private Integer likeCount = 0;
 
+    private Boolean isLiked;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @PrePersist
