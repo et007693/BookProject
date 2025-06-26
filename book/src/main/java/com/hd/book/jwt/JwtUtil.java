@@ -42,15 +42,18 @@ public class JwtUtil {
     // 액세스 토큰 생성
     public String generateToken(String userEmail) {
         LocalDateTime now = LocalDateTime.now();
-        // 발행 시각 Instant 변환
         Instant issuedAtInstant = now.atZone(ZoneId.systemDefault()).toInstant();
-        // 만료 시각 계산 (밀리초 단위)
-        Instant expiryInstant = now
+        Instant expiryInstant = now // 만료 시각 계산 (밀리초 단위)
                 .plus(accessTokenValidityInMs, ChronoUnit.MILLIS)
                 .atZone(ZoneId.systemDefault())
                 .toInstant();
         Date issuedAt = Date.from(issuedAtInstant);
         Date expiry   = Date.from(expiryInstant);
+
+        LocalDateTime issuedAtLdt = issuedAtInstant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime expiryLdt   = expiryInstant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        log.info("▶ JWT AccessToken 발급  | subject: {} | 발급시각: {} | 만료시각: {}",
+                userEmail, issuedAtLdt, expiryLdt);
 
         return Jwts.builder()
                 .setSubject(userEmail)
@@ -68,9 +71,13 @@ public class JwtUtil {
                 .plus(refreshTokenValidityInMs, ChronoUnit.MILLIS)
                 .atZone(ZoneId.systemDefault())
                 .toInstant();
-
         Date issuedAt = Date.from(issuedAtInstant);
         Date expiry   = Date.from(expiryInstant);
+
+        LocalDateTime issuedAtLdt = issuedAtInstant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime expiryLdt   = expiryInstant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        log.info("▶ JWT RefreshToken 발급 | subject: {} | 발급시각: {} | 만료시각: {}",
+                userEmail, issuedAtLdt, expiryLdt);
 
         return Jwts.builder()
                 .setSubject(userEmail)
