@@ -79,8 +79,8 @@ public class BoardCommentService {
         BoardCommentResDto comment = new BoardCommentResDto();
         comment.setBoardCid(boardCommentEntity.getBoardCid());
         comment.setComment(boardCommentEntity.getContent());
-        comment.setLike(boardCommentEntity.getLikeCount());
-        comment.setHate(boardCommentEntity.getHateCount());
+        comment.setLikeCount(boardCommentEntity.getLikeCount());
+        comment.setHateCount(boardCommentEntity.getHateCount());
         comment.setCreatedAt(boardCommentEntity.getCreatedAt());
         comment.setUserId(boardCommentEntity.getUser().getUserId());
         comment.setUsername(boardCommentEntity.getUser().getNickname());

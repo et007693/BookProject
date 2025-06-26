@@ -1,6 +1,6 @@
 package com.hd.book.service;
 
-import com.hd.book.constant.reactionType;
+import com.hd.book.constant.ReactionType;
 import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.BoardReactionEntity;
 import com.hd.book.entity.UserEntity;
@@ -38,10 +38,10 @@ public class BoardReactionService {
             BoardReactionEntity reaction = new BoardReactionEntity();
             reaction.setUser(user);
             reaction.setBoard(board);
-            reaction.setReactionType(reactionType.LIKE);
+            reaction.setReactionType(ReactionType.LIKE);
             boardReactionRepository.save(reaction);
         }
-        board.setLikeCount(boardReactionRepository.countByBoardBoardIdAndReactionType(boardId, reactionType.LIKE));
+        board.setLikeCount(boardReactionRepository.countByBoardBoardIdAndReactionType(boardId, ReactionType.LIKE));
         return board.getLikeCount();
     }
 }
