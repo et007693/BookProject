@@ -38,7 +38,6 @@ public class SecurityConfig {
     public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:5173"));
-        // PATCH 추가!
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
@@ -55,11 +54,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ① CSRF 비활성
                 .csrf(AbstractHttpConfigurer::disable)
-                // ② 세션 사용 안 함
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // ③ 인증/인가 규칙 (OPTIONS 는 필터에서 이미 처리했으니 별도 허용 불필요)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
@@ -70,11 +66,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // ④ 인증 실패 시 401
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
-                // ⑤ JWT 필터 등록
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
 
