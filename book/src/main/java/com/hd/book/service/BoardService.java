@@ -146,5 +146,4 @@ public class BoardService {
         boardResDto.setUsername(boardEntity.getUser().getNickname());
         return boardResDto;
     }
-
 }

@@ -80,8 +80,8 @@ public class BookCommentService {
     // entity -> dto
     private BookCommentResDto convertEntityToDto(BookCommentEntity bookCommentEntity) {
         return BookCommentResDto.builder()
-                .commentId(userUtil.getUser().getUserId())
-                .username(userUtil.getUser().getNickname())
+                .commentId(bookCommentEntity.getBookCid())
+                .username(bookCommentEntity.getUser().getNickname())
                 .content(bookCommentEntity.getContent())
                 .rate(bookCommentEntity.getRate())
                 .createdAt(bookCommentEntity.getCreatedAt())
