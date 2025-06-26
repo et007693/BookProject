@@ -15,4 +15,6 @@ public class BoardResDto {
     private LocalDateTime createdAt;
     //    private String image;
     private String isbn;
+    private Long userId;
+    private String username;
 }

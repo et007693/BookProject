@@ -83,6 +83,7 @@ public class BoardCommentService {
         comment.setHate(boardCommentEntity.getHateCount());
         comment.setCreatedAt(boardCommentEntity.getCreatedAt());
         comment.setUserId(boardCommentEntity.getUser().getUserId());
+        comment.setUsername(boardCommentEntity.getUser().getNickname());
         return comment;
     }
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.List;
 @Getter @Setter
 @NoArgsConstructor
 @ToString(exclude = {"histories"})
-// TODO: JWT 적용
+
 public class UserEntity {
     @Id
     @Column(name = "user_id")
@@ -34,11 +35,19 @@ public class UserEntity {
     @Column(name = "profile_image")
     private String profileImage;
 
+    @Column(name = "bio")
+    private String bio;
+
+    @Column(name = "read_history_visible")
+    private boolean readHistoryVisible = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
     @PrePersist
     private void onCreate() {
-        createdAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

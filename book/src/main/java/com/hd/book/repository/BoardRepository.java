@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,8 +27,8 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     // 게시글 페이지네이션
     Page<BoardEntity> findAll(Pageable pageable);
 
-    // 좋아요 상위
-    Page<BoardEntity> findAllByOrderByLikeCountDesc(Pageable pageable);
+    // 게시글 타입별 좋아요 상위
+    List<BoardEntity> findTop5ByTypeOrderByLikeCountDesc(BoardType type);
 
     // 최근 작성순
     Page<BoardEntity> findAllByOrderByUpdatedAtDesc(Pageable pageable);

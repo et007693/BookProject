@@ -1,6 +1,7 @@
 package com.hd.book.service;
 
 import com.hd.book.constant.BoardType;
+import com.hd.book.dto.board.BoardLikeGroupResDto;
 import com.hd.book.dto.board.BoardResDto;
 import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.entity.BoardEntity;
@@ -105,6 +106,20 @@ public class BoardService {
         return boards.map(this::convertEntityToDto);
     }
 
+    // 좋아요 상위 게시글 조회
+    public BoardLikeGroupResDto bookLikeList() {
+        List<BoardEntity> bookEntities = boardRepository.findTop5ByTypeOrderByLikeCountDesc(BoardType.BOOK);
+        List<BoardEntity> forumEntities = boardRepository.findTop5ByTypeOrderByLikeCountDesc(BoardType.FORUM);
+        List<BoardResDto> bookBoards = bookEntities.stream()
+                .map(this::convertEntityToDto)
+                .toList();
+
+        List<BoardResDto> forumBoards = forumEntities.stream()
+                .map(this::convertEntityToDto)
+                .toList();
+        return new BoardLikeGroupResDto(bookBoards, forumBoards);
+    }
+
     // TODO : 이미지 처리
     // DTO -> Entity
      private BoardEntity convertDtoToEntity(BoardWriteDto boardWriteDto) {
@@ -129,6 +144,8 @@ public class BoardService {
         boardResDto.setLikeCount(boardEntity.getLikeCount());
         boardResDto.setCreatedAt(boardEntity.getCreatedAt());
         boardResDto.setIsbn(boardEntity.getBook().getIsbn());
+        boardResDto.setUserId(boardEntity.getUser().getUserId());
+        boardResDto.setUsername(boardEntity.getUser().getNickname());
         return boardResDto;
     }
 
