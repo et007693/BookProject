@@ -26,6 +26,7 @@ public class BoardEntity {
     @Column(nullable = false, length = 128)
     private String title;
 
+    @Lob
     @Column(nullable = false)
     private String content;
 
