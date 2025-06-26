@@ -137,7 +137,7 @@ public class UserService {
                 .build();
     }
 
-    // 로그인된 사용자가 읽은 책을 등록한다.
+    // 읽은 책 등록
     @Transactional
     public BookHistoryResDto registerReadHistory(String email, BookHistoryReqDto reqDto) {
         // 사용자 조회
@@ -169,10 +169,14 @@ public class UserService {
         LocalDate end   = LocalDate.parse(reqDto.getEndRead());
 
         // 상태 설정
-        HistoryStatus status = end.isBefore(start)
-                ? HistoryStatus.READING
-                : HistoryStatus.COMPLETED;
-
+        HistoryStatus status;
+        if (reqDto.getStatus() != null) {
+            status = HistoryStatus.valueOf(reqDto.getStatus().toString().toUpperCase());
+        } else {
+            status = end.isBefore(start)
+                    ? HistoryStatus.READING
+                    : HistoryStatus.COMPLETED;
+        }
         // 메모 값 가져오기
         String memo = reqDto.getMemo();
 
