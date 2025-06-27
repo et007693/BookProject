@@ -25,6 +25,11 @@ services:
       - mysql
     networks:
       - backend
+    volumes:
+      - ./application-API-KEY.properties:/config/application-API-KEY.properties:ro
+    command: >
+      java -jar app.jar
+      --spring.config.additional-location=file:/config/
 
 volumes:
   mysql_data:
