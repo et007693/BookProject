@@ -6,6 +6,7 @@ import com.hd.book.dto.book.BookHistoryResDto;
 import com.hd.book.dto.book.BookHistoryUpdateDto;
 import com.hd.book.dto.response.ApiResponseDto;
 import com.hd.book.dto.user.UserProfileDto;
+import com.hd.book.dto.book.CalendarHistoryDto; // ⭐⭐ 추가된 임포트 ⭐⭐
 import com.hd.book.jwt.JwtUtil;
 import com.hd.book.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/user") // 기존과 동일한 RequestMapping 경로 사용
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
@@ -44,31 +45,24 @@ public class UserController {
             return ResponseEntity.ok(response);
 
         } catch (AuthenticationCredentialsNotFoundException e) {
-            // Authorization 헤더 자체가 없거나 잘못된 경우
             ApiResponseDto<UserProfileDto> error =
                     new ApiResponseDto<>(false, "Authorization 헤더 형식 오류 발생.", null);
-
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(error);
         } catch (ExpiredJwtException e) {
-            // JWT 만료
             ApiResponseDto<UserProfileDto> error =
                     new ApiResponseDto<>(false, "토큰이 만료되었습니다.", null);
-
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(error);
         } catch (BadCredentialsException e) {
-            // JWT 서명 불일치 등 검증 실패
             ApiResponseDto<UserProfileDto> error =
                     new ApiResponseDto<>(false, "유효하지 않은 토큰입니다.", null);
-
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(error);
         } catch (JwtException | IllegalArgumentException ex) {
-            // 기타 JWT 처리 오류 또는 파라미터 오류
             ApiResponseDto<UserProfileDto> error =
                     new ApiResponseDto<>(false, "토큰 처리 중 오류가 발생했습니다.", null);
             return ResponseEntity
@@ -76,7 +70,6 @@ public class UserController {
                     .body(error);
 
         } catch (AccessDeniedException ex) {
-            // 권한 부족
             ApiResponseDto<UserProfileDto> error =
                     new ApiResponseDto<>(false, "접근 권한이 없습니다.", null);
             return ResponseEntity
@@ -84,7 +77,6 @@ public class UserController {
                     .body(error);
 
         } catch (Exception ex) {
-            // 나머지 서버 오류
             log.error("내 프로필 조회 중 예기치 않은 예외 발생", ex);
             ApiResponseDto<UserProfileDto> error =
                     new ApiResponseDto<>(false, "서버 내부 오류가 발생했습니다.", null);
@@ -114,7 +106,7 @@ public class UserController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("프로필 정보가 수정되지 않았습니다.");
-            throw new RuntimeException(e);
+            throw new RuntimeException(e); // 더 상세한 예외 처리가 필요할 수 있습니다.
         }
     }
 
@@ -204,17 +196,16 @@ public class UserController {
                     new ApiResponseDto<>(false, e.getMessage(), null);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         } catch (Exception e) {
-        // 기타 서버 오류
-        log.error("읽은 책 기록 수정 중 예외 발생", e);
-        ApiResponseDto<BookHistoryResDto> error =
-                new ApiResponseDto<>(false, "서버 내부 오류가 발생했습니다.", null);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
+            log.error("읽은 책 기록 수정 중 예외 발생", e);
+            ApiResponseDto<BookHistoryResDto> error =
+                    new ApiResponseDto<>(false, "서버 내부 오류가 발생했습니다.", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
     // 읽은 책 목록 조회
     @GetMapping("/me/books")
-    public ResponseEntity<ApiResponseDto<java.util.List<BookHistoryResDto>>> getReadBookList(
+    public ResponseEntity<ApiResponseDto<List<BookHistoryResDto>>> getReadBookList(
             @RequestHeader("Authorization") String bearerToken
     ) {
         try {
@@ -226,30 +217,24 @@ public class UserController {
                 throw new BadCredentialsException("유효하지 않은 토큰입니다.");
             }
 
-            // 이메일 추출
             String email = jwtUtil.getUserEmail(token);
+            Long userId = userService.resolveUserIdByEmail(email); // 이메일로부터 사용자 ID를 서비스에서 조회
 
-            // 이메일로부터 사용자 ID를 서비스에서 조회
-            Long userId = userService.resolveUserIdByEmail(email);
+            List<BookHistoryResDto> historyList = userService.getMyReadBooks(userId); // Service에서 자신의 읽은 책 목록을 가져온다
 
-            // Service에서 자신의 읽은 책 목록을 가져온다
-            java.util.List<BookHistoryResDto> historyList = userService.getMyReadBooks(userId);
-
-            ApiResponseDto<java.util.List<BookHistoryResDto>> response =
+            ApiResponseDto<List<BookHistoryResDto>> response =
                     new ApiResponseDto<>(true, "읽은 책 목록 조회에 성공하였습니다.", historyList);
             return ResponseEntity.ok(response);
 
         } catch (BadCredentialsException | JwtException | IllegalArgumentException ex) {
-            // 인증 또는 토큰 처리 에러
-            ApiResponseDto<java.util.List<BookHistoryResDto>> error =
+            ApiResponseDto<List<BookHistoryResDto>> error =
                     new ApiResponseDto<>(false, ex.getMessage(), null);
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(error);
         } catch (Exception ex) {
-            // 기타 서버 에러
             log.error("읽은 책 목록 조회 중 예외 발생", ex);
-            ApiResponseDto<java.util.List<BookHistoryResDto>> error =
+            ApiResponseDto<List<BookHistoryResDto>> error =
                     new ApiResponseDto<>(false, "서버 내부 오류가 발생했습니다.", null);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -271,5 +256,56 @@ public class UserController {
         ApiResponseDto<List<BoardResDto>> resp =
                 new ApiResponseDto<>(true, "내 게시글 목록 조회에 성공하였습니다.", posts);
         return ResponseEntity.ok(resp);
+    }
+
+    @GetMapping("/calendar/histories")
+    public ResponseEntity<ApiResponseDto<List<CalendarHistoryDto>>> getMonthlyCalendarHistories(
+            @RequestHeader("Authorization") String bearerToken, // JWT 토큰을 RequestHeader에서 받음
+            @RequestParam int year,        // 쿼리 파라미터 'year'를 int 타입으로 받음
+            @RequestParam int month) {     // 쿼리 파라미터 'month'를 int 타입으로 받음
+        try {
+            String token = bearerToken
+                    .replaceFirst("(?i)^Bearer\\s+", "")
+                    .trim();
+
+            if (!jwtUtil.validateToken(token)) {
+                throw new BadCredentialsException("유효하지 않은 토큰입니다.");
+            }
+
+            String userEmail = jwtUtil.getUserEmail(token); // JWT에서 사용자 이메일 추출
+            log.info("Request to fetch calendar histories for user {} in {}-{}", userEmail, year, month);
+
+            List<CalendarHistoryDto> histories = userService.getMonthlyReadHistories(userEmail, year, month);
+
+            ApiResponseDto<List<CalendarHistoryDto>> response =
+                    new ApiResponseDto<>(true, "캘린더 독서 기록 조회에 성공했습니다.", histories);
+            return ResponseEntity.ok(response);
+
+        } catch (AuthenticationCredentialsNotFoundException e) {
+            ApiResponseDto<List<CalendarHistoryDto>> error =
+                    new ApiResponseDto<>(false, "Authorization 헤더 형식 오류 발생.", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        } catch (ExpiredJwtException e) {
+            ApiResponseDto<List<CalendarHistoryDto>> error =
+                    new ApiResponseDto<>(false, "토큰이 만료되었습니다.", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        } catch (BadCredentialsException e) {
+            ApiResponseDto<List<CalendarHistoryDto>> error =
+                    new ApiResponseDto<>(false, "유효하지 않은 토큰입니다.", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        } catch (JwtException | IllegalArgumentException ex) {
+            ApiResponseDto<List<CalendarHistoryDto>> error =
+                    new ApiResponseDto<>(false, "토큰 처리 중 오류가 발생했습니다.", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        } catch (AccessDeniedException ex) {
+            ApiResponseDto<List<CalendarHistoryDto>> error =
+                    new ApiResponseDto<>(false, "접근 권한이 없습니다.", null);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        } catch (Exception ex) {
+            log.error("캘린더 독서 기록 조회 중 예기치 않은 예외 발생", ex);
+            ApiResponseDto<List<CalendarHistoryDto>> error =
+                    new ApiResponseDto<>(false, "서버 내부 오류가 발생했습니다.", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 }

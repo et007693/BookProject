@@ -7,6 +7,7 @@ import com.hd.book.dto.book.BookHistoryReqDto;
 import com.hd.book.dto.book.BookHistoryResDto;
 import com.hd.book.dto.book.BookHistoryUpdateDto;
 import com.hd.book.dto.user.UserProfileDto;
+import com.hd.book.dto.book.CalendarHistoryDto; // ⭐⭐ 추가된 임포트 ⭐⭐
 import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.BookEntity;
 import com.hd.book.entity.HistoryEntity;
@@ -25,9 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import java.awt.print.Book;
 
-import java.nio.file.AccessDeniedException;
+import java.nio.file.AccessDeniedException; // 이 임포트가 사용되지 않으면 제거해도 됩니다.
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final BookRepository bookRepository;
-    private final HistoryRepository historyRepository;
+    private final HistoryRepository historyRepository; // 이 필드는 이미 있었습니다.
     private final BoardRepository boardRepository;
 
     // 회원가입
@@ -151,11 +151,14 @@ public class UserService {
         }
 
         // 책 조회
+        // reqDto.getTitle()을 사용하여 BookEntity에 title을 설정해야 합니다.
         BookEntity book = bookRepository.findByIsbn(reqDto.getIsbn())
                 .orElseGet(() -> {
                     BookEntity newBook = new BookEntity();
                     newBook.setIsbn(reqDto.getIsbn());
-                    log.info("새 책을 등록합니다. isbn={}", newBook.getIsbn());
+                    // ⭐⭐ 이 부분에 title을 추가해야 합니다! ⭐⭐
+                    newBook.setTitle(reqDto.getTitle()); // <-- 추가
+                    log.info("새 책을 등록합니다. isbn={}, title={}", newBook.getIsbn(), newBook.getTitle()); // 로그도 변경
                     return bookRepository.save(newBook);
                 });
 
@@ -291,18 +294,54 @@ public class UserService {
 
         // DTO 변환
         return
-        histories.stream()
-                .map(h -> new BookHistoryResDto(
-                        h.getHistoryid(),
-                        Long.parseLong(h.getBook().getIsbn()),
-                        user.getUserId(),
-                        h.getStartDate().toString(),
-                        h.getEndDate().toString(),
-                        h.getStatus(),
-                        h.getMemo(),
-                        h.getCreatedAt().toString(),
-                        h.getUpdatedAt().toString()
-                ))
+                histories.stream()
+                        .map(h -> new BookHistoryResDto(
+                                h.getHistoryid(),
+                                Long.parseLong(h.getBook().getIsbn()),
+                                user.getUserId(),
+                                h.getStartDate().toString(),
+                                h.getEndDate().toString(),
+                                h.getStatus(),
+                                h.getMemo(),
+                                h.getCreatedAt().toString(),
+                                h.getUpdatedAt().toString()
+                        ))
+                        .collect(Collectors.toList());
+    }
+
+    // ⭐⭐ 캘린더 월별 독서 기록(일정) 조회 메서드 - 새로 추가 ⭐⭐
+    /**
+     * 특정 사용자의 캘린더 월에 해당하는 독서 기록을 조회합니다.
+     * @param email 로그인한 사용자의 이메일 (Spring Security Principal에서 넘어옴)
+     * @param year 조회할 연도
+     * @param month 조회할 월
+     * @return 해당 월에 걸쳐있는 독서 기록 리스트 (CalendarHistoryDto 형태)
+     */
+    @Transactional(readOnly = true) // 데이터 변경이 없으므로 읽기 전용 트랜잭션 설정
+    public List<CalendarHistoryDto> getMonthlyReadHistories(String email, int year, int month) {
+        // 1. 현재 로그인한 사용자 찾기
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다. email=" + email));
+
+        // 2. 해당 월의 시작일과 다음 월의 시작일 계산
+        LocalDate startOfMonth = LocalDate.of(year, month, 1);
+        LocalDate endOfMonth = startOfMonth.plusMonths(1);
+
+        log.info("Fetching calendar histories for user {} (ID: {}) from {} to {}", user.getEmail(), user.getUserId(), startOfMonth, endOfMonth.minusDays(1));
+
+        // 3. Repository를 호출하여 독서 기록 조회
+        List<HistoryEntity> histories = historyRepository.findHistoriesForCalendarMonth(user, startOfMonth, endOfMonth);
+
+        // 4. 조회된 HistoryEntity 리스트를 CalendarHistoryDto 리스트로 변환하여 반환
+        return histories.stream()
+                .map(history -> CalendarHistoryDto.builder()
+                        .historyId(history.getHistoryid()) // HistoryEntity의 PK getter 확인
+                        .bookTitle(history.getBook().getTitle()) // HistoryEntity와 BookEntity 간의 관계 및 BookEntity의 getTitle() 확인
+                        .isbn(history.getBook().getIsbn())       // HistoryEntity와 BookEntity 간의 관계 및 BookEntity의 getIsbn() 확인
+                        .startDate(history.getStartDate())
+                        .endDate(history.getEndDate())
+                        .status(history.getStatus())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -348,6 +387,4 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
     }
-
-
 }
