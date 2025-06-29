@@ -1,20 +1,25 @@
 package com.hd.book.service;
 
+import com.hd.book.constant.ReactionType;
 import com.hd.book.dto.comment.BoardCommentResDto;
 import com.hd.book.dto.comment.BoardCommentWriteDto;
 import com.hd.book.entity.BoardCommentEntity;
+import com.hd.book.entity.BoardCommentReactionEntity;
 import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.UserEntity;
+import com.hd.book.repository.BoardCommentReactionRepository;
 import com.hd.book.repository.BoardCommentRepository;
 import com.hd.book.repository.BoardRepository;
 import com.hd.book.util.UserUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.expression.spel.ast.OpAnd;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,6 +29,7 @@ public class BoardCommentService {
     private final UserUtil userUtil;
     private final BoardRepository boardRepository;
     private final BoardCommentRepository boardCommentRepository;
+    private final BoardCommentReactionRepository boardCommentReactionRepository;
 
     // 댓글 등록
     public void postBoardComment(Long boardId, BoardCommentWriteDto boardCommentWriteDto) {
@@ -76,8 +82,14 @@ public class BoardCommentService {
 
     // Entity -> Dto
     private BoardCommentResDto convertEntityToDto(BoardCommentEntity boardCommentEntity) {
+        Optional<BoardCommentReactionEntity> reactionOpt = boardCommentReactionRepository.findByUserAndBoardComment(userUtil.getUser(), boardCommentEntity);
+
+        String userReaction = reactionOpt
+                .map(r -> r.getReactionType().name())
+                .orElse("");
         BoardCommentResDto comment = new BoardCommentResDto();
         comment.setBoardCid(boardCommentEntity.getBoardCid());
+        comment.setReaction(userReaction);
         comment.setComment(boardCommentEntity.getContent());
         comment.setLikeCount(boardCommentEntity.getLikeCount());
         comment.setHateCount(boardCommentEntity.getHateCount());
