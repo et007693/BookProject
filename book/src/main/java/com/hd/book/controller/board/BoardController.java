@@ -71,7 +71,7 @@ public class BoardController {
 
     // 게시물 목록
     @GetMapping("/list")
-    public ResponseEntity<ApiResponseDto<Page<BoardResDto>>> boardList(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<ApiResponseDto<Page<BoardResDto>>> boardList(@PageableDefault(size = 10000, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         try {
             Page<BoardResDto> response = boardService.boardList(pageable);
             return ResponseEntity.ok(new ApiResponseDto<>(true, "게시글 목록 조회 성공", response));
