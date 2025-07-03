@@ -284,29 +284,41 @@ public class UserService {
     }
 
     // 읽은 책 목록 조회
+    // 읽은 책 목록 조회
     @Transactional
     public List<BookHistoryResDto> getMyReadBooks(Long userId) {
-        // 사용자 확인
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-        // 히스토리 조회
         List<HistoryEntity> histories = historyRepository.findAllByUserOrderByStartDateDesc(user);
 
-        // DTO 변환
-        return
-                histories.stream()
-                        .map(h -> new BookHistoryResDto(
-                                h.getHistoryid(),
-                                Long.parseLong(h.getBook().getIsbn()),
-                                user.getUserId(),
-                                h.getStartDate().toString(),
-                                h.getEndDate().toString(),
-                                h.getStatus(),
-                                h.getMemo(),
-                                h.getCreatedAt().toString(),
-                                h.getUpdatedAt().toString()
-                        ))
-                        .collect(Collectors.toList());
+        return histories.stream()
+                .map(h -> {
+                    // 오늘 날짜 문자열
+                    String todayStr = LocalDate.now().toString();
+
+                    // startDate가 null일 경우 오늘 날짜, 아니면 기존 startDate
+                    String startDateStr = (h.getStartDate() != null)
+                            ? h.getStartDate().toString()
+                            : todayStr;
+
+                    // endDate가 null일 경우 오늘 날짜, 아니면 기존 endDate
+                    String endDateStr = (h.getEndDate() != null)
+                            ? h.getEndDate().toString()
+                            : todayStr;
+
+                    return new BookHistoryResDto(
+                            h.getHistoryid(),
+                            Long.parseLong(h.getBook().getIsbn()),
+                            user.getUserId(),
+                            startDateStr,
+                            endDateStr,
+                            h.getStatus(),
+                            h.getMemo(),
+                            h.getCreatedAt().toString(),
+                            h.getUpdatedAt().toString()
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     // ⭐⭐ 캘린더 월별 독서 기록(일정) 조회 메서드 - 새로 추가 ⭐⭐
