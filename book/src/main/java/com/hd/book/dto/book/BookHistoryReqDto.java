@@ -26,4 +26,7 @@ public class BookHistoryReqDto {
     private String endRead;
 
     private String memo;
+
+    @NotBlank(message = "책 제목은 필수입니다.")
+    private String title;
 }

@@ -3,6 +3,7 @@ package com.hd.book.service;
 import com.hd.book.constant.BoardType;
 import com.hd.book.dto.board.BoardLikeGroupResDto;
 import com.hd.book.dto.board.BoardResDto;
+import com.hd.book.dto.board.BoardWeeklyBestResDto;
 import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.BookEntity;
@@ -14,10 +15,14 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -115,6 +120,38 @@ public class BoardService {
         return new BoardLikeGroupResDto(bookBoards, forumBoards);
     }
 
+    // 주간 인기글 조회
+    public List<BoardWeeklyBestResDto> getWeeklyBest(int limit) {
+        // 1. 최근 7일 이내 게시글만 조회
+        LocalDateTime weekAgo = LocalDateTime.now().minusDays(7);
+
+        // 2. likeCount 내림차순, 0페이지부터 limit개
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("likeCount").descending());
+
+        // 3. BOOK 타입 엔티티 조회
+        List<BoardEntity> entities = boardRepository
+                .findByTypeAndCreatedAtAfter(BoardType.BOOK, weekAgo, pageable);
+
+        // 4. 엔티티 → DTO 매핑 (루프 사용)
+        List<BoardWeeklyBestResDto> bookBoards = new ArrayList<>();
+        for (BoardEntity e : entities) {
+            BoardWeeklyBestResDto dto = new BoardWeeklyBestResDto();
+            dto.setBoardId(e.getBoardId());
+            dto.setType(e.getType().name());
+            dto.setTitle(e.getTitle());
+            dto.setContent(e.getContent());
+            dto.setLikeCount(e.getLikeCount());
+            dto.setCreatedAt(e.getCreatedAt());
+            dto.setIsbn(e.getBook().getIsbn());
+            dto.setUserEmail(e.getUser().getEmail());
+            dto.setNickname(e.getUser().getNickname());
+            bookBoards.add(dto);
+        }
+
+        return bookBoards;
+    }
+
+
     // TODO : 이미지 처리
     // DTO -> Entity
      private BoardEntity convertDtoToEntity(BoardWriteDto boardWriteDto) {
@@ -125,8 +162,7 @@ public class BoardService {
          board.setTitle(boardWriteDto.getTitle());
          board.setContent(boardWriteDto.getContent());
          // board.setImage(boardWriteDto.getImage());
-         board.setUser(user);
-         return board;
+         board.setUser(user);return board;
      }
 
      // Entity -> DTO

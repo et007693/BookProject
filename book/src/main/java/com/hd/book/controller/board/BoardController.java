@@ -2,6 +2,7 @@ package com.hd.book.controller.board;
 
 import com.hd.book.dto.board.BoardLikeGroupResDto;
 import com.hd.book.dto.board.BoardResDto;
+import com.hd.book.dto.board.BoardWeeklyBestResDto;
 import com.hd.book.dto.board.BoardWriteDto;
 import com.hd.book.dto.response.ApiResponseDto;
 import com.hd.book.service.BoardReactionService;
@@ -15,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -139,5 +141,21 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponseDto<>(false, e.getMessage(), null));
         }
+    }
+
+    @GetMapping("/weekly-best")
+    public ResponseEntity<ApiResponseDto<List<BoardWeeklyBestResDto>>> getWeeklyBest(
+            @RequestParam(name = "limit", defaultValue = "5") int limit
+    ) {
+        List<BoardWeeklyBestResDto> result = boardService.getWeeklyBest(limit);
+
+        ApiResponseDto<List<BoardWeeklyBestResDto>> response =
+                new ApiResponseDto<>(
+                        true,
+                        "주간 인기글 조회 성공",
+                        result
+                );
+
+        return ResponseEntity.ok(response);
     }
 }
