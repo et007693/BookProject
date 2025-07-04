@@ -17,6 +17,15 @@ public class BookEntity {
     @Column(name = "isbn")
     private String isbn;
 
+    @Column(name = "author")
+    private String author;
+
+    @Column(name = "cover")
+    private String cover;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavoriteBookEntity> favoritedByUsers = new ArrayList<>();
+
     @OneToMany(mappedBy = "book")
     private List<BoardEntity> boards = new ArrayList<>();
 
