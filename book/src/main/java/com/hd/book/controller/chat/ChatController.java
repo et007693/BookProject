@@ -25,6 +25,9 @@ public class ChatController {
 
     @MessageMapping("/chat/message")
     public void processMessage(ChatMessage message) {
+        if (message.getContent() == null || message.getContent().trim().isEmpty()) {
+            throw new IllegalArgumentException("메시지 내용이 비어 있습니다.");
+        }
         chatService.sendMessage(message);
     }
 }
