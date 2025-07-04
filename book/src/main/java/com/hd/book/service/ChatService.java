@@ -21,9 +21,7 @@ public class ChatService {
         this.chatMessageRepository = chatMessageRepository;
     }
 
-    /**
-     * 채팅 메시지를 저장하고, 전체 구독자에게 브로드캐스트합니다.
-     */
+    // 채팅 메시지를 저장하고, 전체 구독자에게 브로드캐스트합니다.
     public void sendMessage(ChatMessage dto) {
         // 타임스탬프 설정
         dto.setTimestamp(System.currentTimeMillis());
