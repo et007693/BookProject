@@ -18,7 +18,8 @@ public class CalendarHistoryDto {
     private Long historyId;
     private String bookTitle; // 책 제목
     private String isbn;      // 책 ISBN
-    private LocalDate startDate; // 독서 시작 날짜 (YYYY-MM-DD)
-    private LocalDate endDate;   // 독서 종료 날짜 (YYYY-MM-DD)
+    private LocalDate startRead; // 독서 시작 날짜 (YYYY-MM-DD)
+    private LocalDate endRead;   // 독서 종료 날짜 (YYYY-MM-DD)
     private HistoryStatus status; // 독서 상태 (READING, COMPLETED 등)
+    private String memo;
 }
