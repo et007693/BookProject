@@ -178,7 +178,7 @@ public class UserService {
                     : HistoryStatus.COMPLETED;
         }
         // 메모 값 가져오기
-        String memo = reqDto.getMemo();
+        String memo = reqDto.getTitle();
 
         // 엔티티 생성 및 저장
         HistoryEntity history = HistoryEntity.builder()
