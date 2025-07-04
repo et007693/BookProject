@@ -178,7 +178,7 @@ public class UserService {
                     : HistoryStatus.COMPLETED;
         }
         // 메모 값 가져오기
-        String memo = reqDto.getTitle();
+        String memo = reqDto.getMemo();
 
         // 엔티티 생성 및 저장
         HistoryEntity history = HistoryEntity.builder()
@@ -318,23 +318,27 @@ public class UserService {
     }
 
     // 캘린더 월별 독서 기록(일정) 조회
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) // 데이터 변경이 없으므로 읽기 전용 트랜잭션 설정
     public List<CalendarHistoryDto> getMonthlyReadHistories(String email, int year, int month) {
+        // 1. 현재 로그인한 사용자 찾기
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다. email=" + email));
 
+        // 2. 해당 월의 시작일과 다음 월의 시작일 계산
         LocalDate startOfMonth = LocalDate.of(year, month, 1);
         LocalDate endOfMonth = startOfMonth.plusMonths(1);
 
         log.info("Fetching calendar histories for user {} (ID: {}) from {} to {}", user.getEmail(), user.getUserId(), startOfMonth, endOfMonth.minusDays(1));
 
+        // 3. Repository를 호출하여 독서 기록 조회
         List<HistoryEntity> histories = historyRepository.findHistoriesForCalendarMonth(user, startOfMonth, endOfMonth);
 
+        // 4. 조회된 HistoryEntity 리스트를 CalendarHistoryDto 리스트로 변환하여 반환
         return histories.stream()
                 .map(history -> CalendarHistoryDto.builder()
-                        .historyId(history.getHistoryid())
-                        .bookTitle(history.getBook().getTitle())
-                        .isbn(history.getBook().getIsbn())
+                        .historyId(history.getHistoryid()) // HistoryEntity의 PK getter 확인
+                        .bookTitle(history.getBook().getTitle()) // HistoryEntity와 BookEntity 간의 관계 및 BookEntity의 getTitle() 확인
+                        .isbn(history.getBook().getIsbn())       // HistoryEntity와 BookEntity 간의 관계 및 BookEntity의 getIsbn() 확인
                         .startRead(history.getStartDate())
                         .endRead(history.getEndDate())
                         .status(history.getStatus())
@@ -342,7 +346,6 @@ public class UserService {
                         .build())
                 .collect(Collectors.toList());
     }
-
     // 이메일을 통해 사용자 ID를 반환
     @Transactional(readOnly = true)
     public Long resolveUserIdByEmail(String email) {
