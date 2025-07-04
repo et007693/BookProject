@@ -38,9 +38,8 @@ public class ChatService {
         messagingTemplate.convertAndSend("/topic/chat", dto);
     }
 
-    /**
-     * 전체 채팅 히스토리를 타임스탬프 순으로 조회하여 DTO 리스트로 반환합니다.
-     */
+    // 전체 채팅 히스토리를 타임스탬프 순으로 조회하여 DTO 리스트로 반환합니다.
+
     public List<ChatMessage> getHistory() {
         return chatMessageRepository.findAllByOrderByTimestampAsc().stream()
                 .map(e -> ChatMessage.builder()
