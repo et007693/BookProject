@@ -9,9 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Builder
-public class ChatMessage {
+public class ChatMessageDto {
     private MessageType type;
     private String sender;
+    private String nickname;
     private String content;
     private long timestamp;
 }

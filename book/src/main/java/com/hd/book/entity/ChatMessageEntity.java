@@ -21,6 +21,10 @@ public class ChatMessageEntity {
     @Column(name = "sender", nullable = false)
     private String sender;
 
+    // 발신자 닉네임
+    @Column(name = "nickname", nullable = false)
+    private String nickname;
+
     // 메시지 내용
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;

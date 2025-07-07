@@ -1,6 +1,6 @@
 package com.hd.book.controller.chat;
 
-import com.hd.book.dto.chat.ChatMessage;
+import com.hd.book.dto.chat.ChatMessageDto;
 import com.hd.book.service.ChatService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,12 +22,12 @@ public class ChatController {
 
     @MessageMapping("/chat/join")
     @SendToUser("/queue/history")
-    public List<ChatMessage> joinRoom() {
+    public List<ChatMessageDto> joinRoom() {
         return chatService.getHistory();
     }
 
     @MessageMapping("/chat/message")
-    public void processMessage(ChatMessage message) {
+    public void processMessage(ChatMessageDto message) {
         if (message.getContent() == null || message.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("메시지 내용이 비어 있습니다.");
         }

@@ -29,4 +29,10 @@ public class UserUtil {
         return userRepository.findByEmail(getUserEmail())
                 .orElseThrow(() -> new RuntimeException("유저 정보를 찾을 수 없습니다."));
     }
+
+    // email 입력 받아 user 정보 반환
+    public UserEntity getUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("유저 정보를 찾을 수 없습니다."));
+    }
 }
