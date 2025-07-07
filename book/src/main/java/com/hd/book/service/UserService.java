@@ -71,6 +71,11 @@ public class UserService {
         return saved;
     }
 
+    // 이메일 중복 확인
+    public Boolean checkEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     // 내 정보 조회
     @Transactional(readOnly = true)
     public UserProfileDto getMyProfile(String email) {
