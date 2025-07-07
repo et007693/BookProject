@@ -7,7 +7,7 @@ import com.hd.book.dto.book.BookHistoryReqDto;
 import com.hd.book.dto.book.BookHistoryResDto;
 import com.hd.book.dto.book.BookHistoryUpdateDto;
 import com.hd.book.dto.user.UserProfileDto;
-import com.hd.book.dto.book.CalendarHistoryDto; // ⭐⭐ 추가된 임포트 ⭐⭐
+import com.hd.book.dto.book.CalendarHistoryDto;
 import com.hd.book.entity.BoardEntity;
 import com.hd.book.entity.BookEntity;
 import com.hd.book.entity.HistoryEntity;
@@ -350,9 +350,10 @@ public class UserService {
                         .historyId(history.getHistoryid()) // HistoryEntity의 PK getter 확인
                         .bookTitle(history.getBook().getTitle()) // HistoryEntity와 BookEntity 간의 관계 및 BookEntity의 getTitle() 확인
                         .isbn(history.getBook().getIsbn())       // HistoryEntity와 BookEntity 간의 관계 및 BookEntity의 getIsbn() 확인
-                        .startDate(history.getStartDate())
-                        .endDate(history.getEndDate())
+                        .startRead(history.getStartDate())
+                        .endRead(history.getEndDate())
                         .status(history.getStatus())
+                        .memo(history.getMemo())
                         .build())
                 .collect(Collectors.toList());
     }

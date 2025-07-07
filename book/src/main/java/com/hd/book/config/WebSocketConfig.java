@@ -43,7 +43,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // prefix: 클라이언트 -> 서버로 보낼 때
         registry.setApplicationDestinationPrefixes("/app");
         // SimpleBroker: 서버 -> 클라이언트로 메시지 브로드캐스트
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker("/topic", "/queue");
         // user 대상 point to point 메시징
         registry.setUserDestinationPrefix("/user");
     }

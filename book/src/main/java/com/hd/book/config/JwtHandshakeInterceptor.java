@@ -25,20 +25,16 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                    WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) throws Exception {
         if (request instanceof ServletServerHttpRequest servletReq) {
-            String authHeader = servletReq.getServletRequest().getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                String token = authHeader.substring(7);
-                // 토큰 유효성 검증
-                if (jwtUtil.validateToken(token)) {
-                    // 토큰에서 사용자 이메일(또는 ID) 추출
-                    String userEmail = jwtUtil.getUserEmail(token);
-                    attributes.put("userEmail", userEmail);
-                    return true;
-                }
+            String token = servletReq.getServletRequest().getParameter("token");
+            if (token != null && jwtUtil.validateToken(token)) {
+                String userEmail = jwtUtil.getUserEmail(token);
+                attributes.put("userEmail", userEmail);
+                return true;
             }
         }
         return false;
     }
+
 
     @Override
     public void afterHandshake(ServerHttpRequest request,
