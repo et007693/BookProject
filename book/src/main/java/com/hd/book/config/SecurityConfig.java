@@ -63,7 +63,8 @@ public class SecurityConfig {
                                 "/api/board/weekly-best",
                                 "/api/book/best",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/ws/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
