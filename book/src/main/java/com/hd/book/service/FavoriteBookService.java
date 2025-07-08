@@ -1,7 +1,7 @@
 package com.hd.book.service;
 
-import com.hd.book.dto.book.FavoriteBookRequestDto;
-import com.hd.book.dto.book.FavoriteBookResponseDto;
+import com.hd.book.dto.book.FavoriteBookReqDto;
+import com.hd.book.dto.book.FavoriteBookResDto;
 import com.hd.book.entity.BookEntity;
 import com.hd.book.entity.FavoriteBookEntity;
 import com.hd.book.entity.UserEntity;
@@ -25,7 +25,7 @@ public class FavoriteBookService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public FavoriteBookResponseDto addFavoriteBook(String username, FavoriteBookRequestDto requestDto) {
+    public FavoriteBookResDto addFavoriteBook(String username, FavoriteBookReqDto requestDto) {
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다. 이메일: " + username));
 
@@ -34,8 +34,6 @@ public class FavoriteBookService {
                     BookEntity newBook = new BookEntity();
                     newBook.setIsbn(requestDto.getIsbn());
                     newBook.setTitle(requestDto.getTitle());
-                    newBook.setAuthor(requestDto.getAuthor());
-                    newBook.setCover(requestDto.getCover());
                     return bookRepository.save(newBook);
                 });
 
@@ -46,18 +44,18 @@ public class FavoriteBookService {
         FavoriteBookEntity favoriteBook = new FavoriteBookEntity(user, book);
         favoriteBookRepository.save(favoriteBook);
 
-        return new FavoriteBookResponseDto(favoriteBook);
+        return new FavoriteBookResDto(favoriteBook);
     }
 
     @Transactional
-    public List<FavoriteBookResponseDto> getFavoriteBooks(String username) {
+    public List<FavoriteBookResDto> getFavoriteBooks(String username) {
         UserEntity user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다. 이메일: " + username));
 
         List<FavoriteBookEntity> favoriteBooks = favoriteBookRepository.findByUser(user);
 
         return favoriteBooks.stream()
-                .map(FavoriteBookResponseDto::new)
+                .map(FavoriteBookResDto::new)
                 .collect(Collectors.toList());
     }
 

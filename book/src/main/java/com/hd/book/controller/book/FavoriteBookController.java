@@ -1,7 +1,7 @@
 package com.hd.book.controller.book;
 
-import com.hd.book.dto.book.FavoriteBookRequestDto;
-import com.hd.book.dto.book.FavoriteBookResponseDto;
+import com.hd.book.dto.book.FavoriteBookReqDto;
+import com.hd.book.dto.book.FavoriteBookResDto;
 import com.hd.book.service.FavoriteBookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +21,18 @@ public class FavoriteBookController {
     private final FavoriteBookService favoriteBookService;
 
     @PostMapping
-    public ResponseEntity<FavoriteBookResponseDto> addFavorite(
+    public ResponseEntity<FavoriteBookResDto> addFavorite(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody FavoriteBookRequestDto requestDto) {
-        FavoriteBookResponseDto response = favoriteBookService.addFavoriteBook(
+            @Valid @RequestBody FavoriteBookReqDto requestDto) {
+        FavoriteBookResDto response = favoriteBookService.addFavoriteBook(
                 userDetails.getUsername(), requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<FavoriteBookResponseDto>> getFavoriteBooks(
+    public ResponseEntity<List<FavoriteBookResDto>> getFavoriteBooks(
             @AuthenticationPrincipal UserDetails userDetails) {
-        List<FavoriteBookResponseDto> favoriteBooks = favoriteBookService.getFavoriteBooks(
+        List<FavoriteBookResDto> favoriteBooks = favoriteBookService.getFavoriteBooks(
                 userDetails.getUsername());
         return ResponseEntity.ok(favoriteBooks);
     }

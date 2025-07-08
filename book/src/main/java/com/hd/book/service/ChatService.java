@@ -32,7 +32,7 @@ public class ChatService {
 
         ChatMessageEntity entity = ChatMessageEntity.builder()
                 .sender(dto.getSender())
-                .nickname(userUtil.getUser().getNickname())
+                .nickname(userUtil.getUser(dto.getSender()).getNickname())
                 .content(dto.getContent())
                 .timestamp(dto.getTimestamp())
                 .build();
