@@ -17,6 +17,9 @@ public class BookEntity {
     @Column(name = "isbn")
     private String isbn;
 
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavoriteBookEntity> favoritedByUsers = new ArrayList<>();
+
     @OneToMany(mappedBy = "book")
     private List<BoardEntity> boards = new ArrayList<>();
 
@@ -26,6 +29,6 @@ public class BookEntity {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HistoryEntity> histories = new ArrayList<>();
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title")
     private String title;
 }

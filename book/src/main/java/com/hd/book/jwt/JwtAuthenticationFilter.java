@@ -1,5 +1,6 @@
 package com.hd.book.jwt;
 
+import com.hd.book.service.CustomDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -21,6 +23,7 @@ import java.util.Collections;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
+    private final CustomDetailsService customDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -36,9 +39,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (jwtUtil.validateToken(token)) {
                     // 사용자 정보 추출
                     String username = jwtUtil.getUserEmail(token);
+                    // UserDetailsService로부터 사용자 정보 조회
+                    UserDetails userDetails = customDetailsService.loadUserByUsername(username);
                     // 인증 객체 생성 및 SecurityContext에 등록
                     Authentication auth = new UsernamePasswordAuthenticationToken(
-                            username, null, Collections.emptyList());
+                            userDetails, null, Collections.emptyList());
                     ((UsernamePasswordAuthenticationToken) auth)
                             .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     // 인증 정보 저장
